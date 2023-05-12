@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
 
+import 'home.dart';
+
 class addInvoiceScreen extends StatefulWidget {
   const addInvoiceScreen({super.key});
 
@@ -22,13 +24,16 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var screensize = MediaQuery.of(context).size;
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: Color.fromARGB(255, 49, 158, 248),
         appBar: AppBar(
+          backgroundColor: Color.fromARGB(255, 29, 134, 182),
           bottom: TabBar(
-              indicator: BoxDecoration(color: Color.fromARGB(255, 3, 119, 214)),
+              indicator: BoxDecoration(
+                color: Color.fromARGB(255, 33, 167, 228),
+              ),
               // ignore: prefer_const_literals_to_create_immutables
               tabs: [
                 Tab(
@@ -39,24 +44,19 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                 ),
               ]),
         ),
-        body: TabBarView(children: [
-          Gst(),
-          Container(
-            color: Colors.white,
-            child: Text('Non-GST'),
-          )
-        ]),
+        body: TabBarView(children: [Gst(screensize), Non_Gst(screensize)]),
       ),
     );
   }
 }
 
-Gst() {
+Gst(var screensize) {
   return Scaffold(
     body: SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -305,7 +305,20 @@ Gst() {
                 )
               ],
             ),
-            fields(),
+            Container(
+              decoration: BoxDecoration(
+                  border: Border.all(
+                      width: 2, color: Color.fromARGB(255, 222, 222, 222)),
+                  borderRadius: BorderRadius.circular(5)),
+              height: screensize.height * 0.2,
+              width: screensize.width * 0.7,
+              child: Center(
+                child: Text(
+                  "Upload Image",
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+            ),
             SizedBox(
               height: 15,
             ),
@@ -319,6 +332,208 @@ Gst() {
               ],
             ),
             fields(),
+            SizedBox(
+              height: 15,
+            ),
+            MaterialButton(
+              onPressed: () {
+                Get.to(homeScreen());
+              },
+              height: screensize.height * 0.065,
+              color: Color.fromARGB(255, 91, 171, 94),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(7)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Non_Gst(var screensize) {
+  return Scaffold(
+    body: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text("Vendor"),
+                Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                )
+              ],
+            ),
+            forexample(cities),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              children: [
+                Text('Item Name'),
+                Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                )
+              ],
+            ),
+            forexample(itemNames),
+            SizedBox(
+              height: 15,
+            ),
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Text('Instrument reference number'),
+                    Text(
+                      "*",
+                      style: TextStyle(color: Colors.red),
+                    )
+                  ],
+                ),
+              ],
+            ),
+            fields(),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              children: [
+                Text('Instrument date'),
+                Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                )
+              ],
+            ),
+            fields(),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              children: [
+                Text('Instrument value'),
+                Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                )
+              ],
+            ),
+            fields(),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              children: [
+                Text('Good/Service description'),
+                Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                )
+              ],
+            ),
+            fields(),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              children: [
+                Text('Quantity'),
+                Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                )
+              ],
+            ),
+            fields(),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              children: [
+                Text('Instrument total value'),
+                Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                )
+              ],
+            ),
+            fields(),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              children: [
+                Text('Bill Image'),
+                Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                )
+              ],
+            ),
+            Container(
+              decoration: BoxDecoration(
+                  border: Border.all(
+                      width: 2, color: Color.fromARGB(255, 222, 222, 222)),
+                  borderRadius: BorderRadius.circular(5)),
+              height: screensize.height * 0.2,
+              width: screensize.width * 0.7,
+              child: Center(
+                child: Text(
+                  "Upload Image",
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              children: [
+                Text('Mode of payment'),
+                Text(
+                  "*",
+                  style: TextStyle(color: Colors.red),
+                )
+              ],
+            ),
+            fields(),
+            SizedBox(
+              height: 15,
+            ),
+            MaterialButton(
+              onPressed: () {
+                Get.to(homeScreen());
+              },
+              height: screensize.height * 0.065,
+              color: Color.fromARGB(255, 91, 171, 94),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(7)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  )
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -337,7 +552,7 @@ fields() {
         focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(
           width: 2,
-          color: Color.fromARGB(255, 49, 158, 248),
+          color: Color.fromARGB(255, 29, 134, 182),
         ))),
   );
 }
@@ -349,7 +564,7 @@ forexample(List<String> option) {
       focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
         width: 2,
-        color: Color.fromARGB(255, 49, 158, 248),
+        color: Color.fromARGB(255, 29, 134, 182),
       )),
       enabledBorder: OutlineInputBorder(
           borderSide:

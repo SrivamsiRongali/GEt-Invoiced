@@ -73,7 +73,7 @@ class _loginScreenState extends State<loginScreen> {
                                 child: Text(
                                   "Forgot your password?",
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 49, 158, 248),
+                                    color: Color.fromARGB(255, 29, 134, 182),
                                   ),
                                 ))
                           ]),
@@ -86,7 +86,7 @@ class _loginScreenState extends State<loginScreen> {
                           Get.to(homeScreen());
                         },
                         height: screensize.height * 0.065,
-                        color: Color.fromARGB(255, 49, 158, 248),
+                        color: Color.fromARGB(255, 91, 171, 94),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(7)),
                         child: Row(
@@ -110,7 +110,7 @@ class _loginScreenState extends State<loginScreen> {
                               child: Text(
                                 "Sign up now",
                                 style: TextStyle(
-                                    color: Color.fromARGB(255, 49, 158, 248)),
+                                    color: Color.fromARGB(255, 91, 171, 94)),
                               ))
                         ],
                       ),
@@ -139,7 +139,7 @@ class _loginScreenState extends State<loginScreen> {
           labelText: label,
           focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
-                  color: Color.fromARGB(255, 49, 158, 248), width: 2)),
+                  color: Color.fromARGB(255, 29, 134, 182), width: 2)),
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
                   color: Color.fromARGB(255, 216, 216, 216), width: 2))),

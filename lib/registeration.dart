@@ -98,7 +98,7 @@ class _registration_ScreenState extends State<registration_Screen> {
                         Get.to(loginScreen());
                       },
                       height: screensize.height * 0.065,
-                      color: Color.fromARGB(255, 49, 158, 248),
+                      color: Color.fromARGB(255, 91, 171, 94),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(7)),
                       child: Row(
@@ -140,7 +140,7 @@ class _registration_ScreenState extends State<registration_Screen> {
           hintText: hinttext,
           focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
-            color: Color.fromARGB(255, 49, 158, 248),
+            color: Color.fromARGB(255, 29, 134, 182),
           )),
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
