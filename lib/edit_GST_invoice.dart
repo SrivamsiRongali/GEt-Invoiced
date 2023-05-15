@@ -344,7 +344,7 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Save',
+                      'Delete',
                       style: TextStyle(color: Colors.white, fontSize: 20),
                     )
                   ],

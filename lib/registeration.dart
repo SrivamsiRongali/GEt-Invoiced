@@ -1,10 +1,12 @@
-// ignore_for_file: prefer_const_constructors, non_constant_identifier_names
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, unused_local_variable
 
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
 import 'login.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class registration_Screen extends StatefulWidget {
   const registration_Screen({super.key});
@@ -15,6 +17,47 @@ class registration_Screen extends StatefulWidget {
 
 class _registration_ScreenState extends State<registration_Screen> {
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
+  registerapi(
+      String organizationid,
+      String firstname,
+      String lastname,
+      String email,
+      String mobilenumber,
+      String password,
+      String confirmpassword) async {
+    var data = json.encode({
+      "organizationId": organizationid,
+      "firstName": firstname,
+      "lastName": lastname,
+      "email": email,
+      "mobileNumber": mobilenumber,
+      "designation": "Book-Keeper",
+      "password": password,
+      "confirmPassword": confirmpassword
+    });
+    Map mapresponse;
+
+    http.Response response = await http.post(
+        Uri.parse("http://192.168.0.101:8081/register"),
+        headers: {"accept": "*/*", "Content-Type": "application/json"},
+        body: data);
+    if (response.statusCode == 200) {
+      print(response.body);
+      print("registration successful");
+      Get.to(loginScreen());
+    } else {
+      print("Registration failed");
+    }
+  }
+
+  TextEditingController orgidctrl = TextEditingController();
+  TextEditingController fnamectrl = TextEditingController();
+  TextEditingController lnamectrl = TextEditingController();
+  TextEditingController mobilenumberctrl = TextEditingController();
+  TextEditingController emailctrl = TextEditingController();
+  TextEditingController passwordctrl = TextEditingController();
+  TextEditingController confirmpasswordctrl = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     var screensize = MediaQuery.of(context).size;
@@ -33,7 +76,7 @@ class _registration_ScreenState extends State<registration_Screen> {
                     SizedBox(
                       height: 5,
                     ),
-                    Fields("Organization-ID"),
+                    Fields("Organization-ID", orgidctrl, false),
                     SizedBox(
                       height: 10,
                     ),
@@ -43,7 +86,7 @@ class _registration_ScreenState extends State<registration_Screen> {
                         SizedBox(
                           height: 5,
                         ),
-                        Fields("First Name"),
+                        Fields("First Name", fnamectrl, false),
                       ],
                     ),
                     SizedBox(
@@ -55,7 +98,7 @@ class _registration_ScreenState extends State<registration_Screen> {
                         SizedBox(
                           height: 5,
                         ),
-                        Fields("Last Name"),
+                        Fields("Last Name", lnamectrl, false),
                       ],
                     ),
                     SizedBox(
@@ -65,7 +108,7 @@ class _registration_ScreenState extends State<registration_Screen> {
                     SizedBox(
                       height: 5,
                     ),
-                    Fields("Email"),
+                    Fields("Email", emailctrl, false),
                     SizedBox(
                       height: 10,
                     ),
@@ -73,7 +116,7 @@ class _registration_ScreenState extends State<registration_Screen> {
                     SizedBox(
                       height: 5,
                     ),
-                    Fields("Mobile Number"),
+                    Fields("Mobile Number", mobilenumberctrl, false),
                     SizedBox(
                       height: 10,
                     ),
@@ -81,7 +124,7 @@ class _registration_ScreenState extends State<registration_Screen> {
                     SizedBox(
                       height: 5,
                     ),
-                    Fields("Password"),
+                    Fields("Password", passwordctrl, true),
                     SizedBox(
                       height: 10,
                     ),
@@ -89,13 +132,148 @@ class _registration_ScreenState extends State<registration_Screen> {
                     SizedBox(
                       height: 5,
                     ),
-                    Fields("Confirm Password"),
+                    Fields("Confirm Password", confirmpasswordctrl, true),
                     SizedBox(
                       height: 25,
                     ),
                     MaterialButton(
                       onPressed: () {
-                        Get.to(loginScreen());
+                        if (orgidctrl.text.length == 0) {
+                          Get.defaultDialog(
+                              title: "",
+                              titlePadding: EdgeInsets.only(top: 10),
+                              content:
+                                  Text("Please fill all the Mandatory Fields"),
+                              actions: [
+                                MaterialButton(
+                                  color: Color.fromARGB(255, 255, 123, 0),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text(
+                                    'OK',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                )
+                              ]);
+                        } else if (fnamectrl.text.length == 0) {
+                          Get.defaultDialog(
+                              title: "",
+                              titlePadding: EdgeInsets.only(top: 10),
+                              content:
+                                  Text("Please fill all the Mandatory Fields"),
+                              actions: [
+                                MaterialButton(
+                                  color: Color.fromARGB(255, 255, 123, 0),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text(
+                                    'OK',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                )
+                              ]);
+                        } else if (lnamectrl.text.length == 0) {
+                          Get.defaultDialog(
+                              title: "",
+                              titlePadding: EdgeInsets.only(top: 10),
+                              content:
+                                  Text("Please fill all the Mandatory Fields"),
+                              actions: [
+                                MaterialButton(
+                                  color: Color.fromARGB(255, 255, 123, 0),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text(
+                                    'OK',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                )
+                              ]);
+                        } else if (emailctrl.text.length == 0) {
+                          Get.defaultDialog(
+                              title: "",
+                              titlePadding: EdgeInsets.only(top: 10),
+                              content:
+                                  Text("Please fill all the Mandatory Fields"),
+                              actions: [
+                                MaterialButton(
+                                  color: Color.fromARGB(255, 255, 123, 0),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text(
+                                    'OK',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                )
+                              ]);
+                        } else if (passwordctrl.text.length == 0) {
+                          Get.defaultDialog(
+                              title: "",
+                              titlePadding: EdgeInsets.only(top: 10),
+                              content:
+                                  Text("Please fill all the Mandatory Fields"),
+                              actions: [
+                                MaterialButton(
+                                  color: Color.fromARGB(255, 255, 123, 0),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text(
+                                    'OK',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                )
+                              ]);
+                        } else if (confirmpasswordctrl.text.length == 0) {
+                          Get.defaultDialog(
+                              title: "",
+                              titlePadding: EdgeInsets.only(top: 10),
+                              content:
+                                  Text("Please fill all the Mandatory Fields"),
+                              actions: [
+                                MaterialButton(
+                                  color: Color.fromARGB(255, 255, 123, 0),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text(
+                                    'OK',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                )
+                              ]);
+                        } else if (confirmpasswordctrl.text !=
+                            passwordctrl.text) {
+                          Get.defaultDialog(
+                              title: "",
+                              titlePadding: EdgeInsets.only(top: 10),
+                              content: Text("Please Re-check the Password"),
+                              actions: [
+                                MaterialButton(
+                                  color: Color.fromARGB(255, 255, 123, 0),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text(
+                                    'OK',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                )
+                              ]);
+                        } else {
+                          registerapi(
+                              orgidctrl.text,
+                              fnamectrl.text,
+                              lnamectrl.text,
+                              emailctrl.text,
+                              mobilenumberctrl.text,
+                              passwordctrl.text,
+                              confirmpasswordctrl.text);
+                        }
                       },
                       height: screensize.height * 0.065,
                       color: Color.fromARGB(255, 91, 171, 94),
@@ -134,18 +312,45 @@ class _registration_ScreenState extends State<registration_Screen> {
     ]);
   }
 
-  Fields(String hinttext) {
+  bool securetext = true;
+
+  Fields(String hinttext, TextEditingController controller, bool ispassword) {
     return TextFormField(
-      decoration: InputDecoration(
-          hintText: hinttext,
-          focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-            color: Color.fromARGB(255, 29, 134, 182),
-          )),
-          enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-            color: Color.fromARGB(255, 216, 216, 216),
-          ))),
+      controller: controller,
+      decoration: ispassword == true
+          ? InputDecoration(
+              hintText: hinttext,
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                color: Color.fromARGB(255, 29, 134, 182),
+              )),
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                color: Color.fromARGB(255, 216, 216, 216),
+              )),
+              suffixIcon: IconButton(
+                icon: Icon(securetext
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined),
+                onPressed: () {
+                  setState(() {
+                    securetext = !securetext;
+                  });
+                },
+                color: Colors.grey,
+              ),
+            )
+          : InputDecoration(
+              hintText: hinttext,
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                color: Color.fromARGB(255, 29, 134, 182),
+              )),
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                color: Color.fromARGB(255, 216, 216, 216),
+              ))),
+      obscureText: ispassword ? securetext : false,
     );
   }
 }

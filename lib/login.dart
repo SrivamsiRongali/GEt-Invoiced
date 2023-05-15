@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, sized_box_for_whitespace, prefer_const_constructors, non_constant_identifier_names, camel_case_types
 
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:invoiced/home.dart';
@@ -13,6 +15,29 @@ class loginScreen extends StatefulWidget {
 }
 
 class _loginScreenState extends State<loginScreen> {
+  registerapi(
+    String email,
+    String password,
+  ) async {
+    var data = json.encode({"email": email, "password": password});
+    Map mapresponse;
+
+    http.Response response = await http.post(
+        Uri.parse("http://192.168.0.101:8081/login"),
+        headers: {"accept": "*/*", "Content-Type": "application/json"},
+        body: data);
+    if (response.statusCode == 200) {
+      print(response.body);
+      print("registration successful");
+      Get.to(loginScreen());
+    } else {
+      print("Registration failed");
+    }
+  }
+
+  TextEditingController emailctrl = TextEditingController();
+  TextEditingController passwordctrl = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     var screensize = MediaQuery.of(context).size;
@@ -53,7 +78,7 @@ class _loginScreenState extends State<loginScreen> {
                       SizedBox(
                         height: 5,
                       ),
-                      Fields("Email"),
+                      Fields("Email", false, emailctrl),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -69,7 +94,26 @@ class _loginScreenState extends State<loginScreen> {
                               ],
                             ),
                             TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Get.defaultDialog(
+                                      title: "",
+                                      titlePadding: EdgeInsets.only(top: 10),
+                                      content: Text("Comming Soon"),
+                                      actions: [
+                                        MaterialButton(
+                                          color:
+                                              Color.fromARGB(255, 255, 123, 0),
+                                          onPressed: () {
+                                            Get.back();
+                                          },
+                                          child: Text(
+                                            'OK',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        )
+                                      ]);
+                                },
                                 child: Text(
                                   "Forgot your password?",
                                   style: TextStyle(
@@ -77,13 +121,51 @@ class _loginScreenState extends State<loginScreen> {
                                   ),
                                 ))
                           ]),
-                      Fields("Password"),
+                      Fields("Password", true, passwordctrl),
                       SizedBox(
                         height: 20,
                       ),
                       MaterialButton(
                         onPressed: () {
-                          Get.to(homeScreen());
+                          if (emailctrl.text.length == 0) {
+                            Get.defaultDialog(
+                                title: "",
+                                titlePadding: EdgeInsets.only(top: 10),
+                                content: Text(
+                                    "Please fill all the Mandatory Fields"),
+                                actions: [
+                                  MaterialButton(
+                                    color: Color.fromARGB(255, 255, 123, 0),
+                                    onPressed: () {
+                                      Get.back();
+                                    },
+                                    child: Text(
+                                      'OK',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                ]);
+                          } else if (passwordctrl.text.length == 0) {
+                            Get.defaultDialog(
+                                title: "",
+                                titlePadding: EdgeInsets.only(top: 10),
+                                content: Text(
+                                    "Please fill all the Mandatory Fields"),
+                                actions: [
+                                  MaterialButton(
+                                    color: Color.fromARGB(255, 255, 123, 0),
+                                    onPressed: () {
+                                      Get.back();
+                                    },
+                                    child: Text(
+                                      'OK',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                ]);
+                          } else {
+                            Get.to(homeScreen());
+                          }
                         },
                         height: screensize.height * 0.065,
                         color: Color.fromARGB(255, 91, 171, 94),
@@ -133,16 +215,45 @@ class _loginScreenState extends State<loginScreen> {
     );
   }
 
-  Fields(String label) {
+  bool securetext = true;
+
+  Fields(String label, bool ispassword, TextEditingController controller) {
     return TextFormField(
-      decoration: InputDecoration(
-          labelText: label,
-          focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: Color.fromARGB(255, 29, 134, 182), width: 2)),
-          enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: Color.fromARGB(255, 216, 216, 216), width: 2))),
+      controller: controller,
+      decoration: ispassword == true
+          ? InputDecoration(
+              hintText: label,
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                color: Color.fromARGB(255, 29, 134, 182),
+              )),
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                color: Color.fromARGB(255, 216, 216, 216),
+              )),
+              suffixIcon: IconButton(
+                icon: Icon(securetext
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined),
+                onPressed: () {
+                  setState(() {
+                    securetext = !securetext;
+                  });
+                },
+                color: Colors.grey,
+              ),
+            )
+          : InputDecoration(
+              hintText: label,
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                color: Color.fromARGB(255, 29, 134, 182),
+              )),
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                color: Color.fromARGB(255, 216, 216, 216),
+              ))),
+      obscureText: ispassword ? securetext : false,
     );
   }
 }
