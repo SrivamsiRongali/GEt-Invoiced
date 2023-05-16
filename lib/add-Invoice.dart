@@ -33,34 +33,12 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
   void takePhoto(ImageSource source) async {
     var pickedFile = await _picker.getImage(source: source);
 
-    _imageFile = pickedFile!;
-    var imagepermanent = await saveimage(_imageFile!.path);
     setState(() {
-      image = imagepermanent;
+      // image = imagepermanent;
+      image = File(pickedFile!.path);
     });
 
     print(image);
-  }
-
-  Future<File> saveimage(String imagepath) async {
-    var directory = await getApplicationDocumentsDirectory();
-    var name = basename(imagepath);
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-    sharedPreferences.setString("image", "${directory.path}/$name");
-
-    var images = File("${directory.path}/$name");
-    return File(imagepath).copy(images.path);
-  }
-
-  profilepic() async {
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-    var images = sharedPreferences.getString("image");
-    setState(() {
-      image = File(images!);
-    });
-    print(images);
   }
 
   @override

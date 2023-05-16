@@ -15,7 +15,7 @@ class loginScreen extends StatefulWidget {
 }
 
 class _loginScreenState extends State<loginScreen> {
-  registerapi(
+  loginapi(
     String email,
     String password,
   ) async {
@@ -23,13 +23,13 @@ class _loginScreenState extends State<loginScreen> {
     Map mapresponse;
 
     http.Response response = await http.post(
-        Uri.parse("http://192.168.0.101:8081/login"),
+        Uri.parse("http://192.168.0.101:8082/login"),
         headers: {"accept": "*/*", "Content-Type": "application/json"},
         body: data);
     if (response.statusCode == 200) {
       print(response.body);
       print("registration successful");
-      Get.to(loginScreen());
+      Get.to(homeScreen());
     } else {
       print("Registration failed");
     }
@@ -164,7 +164,7 @@ class _loginScreenState extends State<loginScreen> {
                                   )
                                 ]);
                           } else {
-                            Get.to(homeScreen());
+                            loginapi(emailctrl.text, passwordctrl.text);
                           }
                         },
                         height: screensize.height * 0.065,

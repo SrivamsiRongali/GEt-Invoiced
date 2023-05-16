@@ -26,21 +26,22 @@ class _registration_ScreenState extends State<registration_Screen> {
       String password,
       String confirmpassword) async {
     var data = json.encode({
-      "organizationId": organizationid,
-      "firstName": firstname,
-      "lastName": lastname,
-      "email": email,
-      "mobileNumber": mobilenumber,
+      "firstName": firstname.toString(),
+      "lastName": lastname.toString(),
+      "email": email.toString(),
+      "mobileNumber": mobilenumber.toString(),
       "designation": "Book-Keeper",
-      "password": password,
-      "confirmPassword": confirmpassword
+      "password": password.toString(),
+      "confirmPassword": confirmpassword.toString()
     });
     Map mapresponse;
+    print("register api");
 
     http.Response response = await http.post(
-        Uri.parse("http://192.168.0.101:8081/register"),
+        Uri.parse("http://192.168.0.101:8082/register"),
         headers: {"accept": "*/*", "Content-Type": "application/json"},
         body: data);
+    print(response);
     if (response.statusCode == 200) {
       print(response.body);
       print("registration successful");
