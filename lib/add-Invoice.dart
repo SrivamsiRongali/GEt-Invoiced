@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:invoiced/payment_mode.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
@@ -394,16 +395,24 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
               SizedBox(
                 height: 15,
               ),
-              Row(
-                children: [
-                  Text('Mode of Payment'),
-                  Text(
-                    "*",
-                    style: TextStyle(color: Colors.red),
-                  )
-                ],
+              MaterialButton(
+                onPressed: () {
+                  Get.to(paymentModeScreen());
+                },
+                height: screensize.height * 0.065,
+                color: Color.fromARGB(255, 91, 171, 94),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(7)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Select Mode of Payment',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    )
+                  ],
+                ),
               ),
-              fields(),
               SizedBox(
                 height: 15,
               ),
@@ -586,16 +595,24 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
               SizedBox(
                 height: 15,
               ),
-              Row(
-                children: [
-                  Text('Mode of payment'),
-                  Text(
-                    "*",
-                    style: TextStyle(color: Colors.red),
-                  )
-                ],
+              MaterialButton(
+                onPressed: () {
+                  Get.to(paymentModeScreen());
+                },
+                height: screensize.height * 0.065,
+                color: Color.fromARGB(255, 91, 171, 94),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(7)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Select Mode of Payment',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    )
+                  ],
+                ),
               ),
-              fields(),
               SizedBox(
                 height: 15,
               ),

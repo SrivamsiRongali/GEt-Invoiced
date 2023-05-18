@@ -4,8 +4,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:invoiced/databasehelper.dart';
 import 'package:invoiced/home.dart';
+import 'package:invoiced/pojoclass.dart';
 import 'package:invoiced/registeration.dart';
+import 'package:sqflite/sqflite.dart';
 
 class loginScreen extends StatefulWidget {
   const loginScreen({super.key});
@@ -15,6 +18,19 @@ class loginScreen extends StatefulWidget {
 }
 
 class _loginScreenState extends State<loginScreen> {
+  @override
+  void initState() {
+    super.initState();
+    flow();
+  }
+
+  flow() async {
+    var flow = await DatabaseHelper.instance.getbookkeepermodel();
+    if (flow[0]['flow'] == 1) {
+      Get.offAll(homeScreen());
+    }
+  }
+
   loginapi(
     String email,
     String password,
@@ -27,11 +43,45 @@ class _loginScreenState extends State<loginScreen> {
         headers: {"accept": "*/*", "Content-Type": "application/json"},
         body: data);
     if (response.statusCode == 200) {
-      print(response.body);
-      print("registration successful");
-      Get.to(homeScreen());
+      mapresponse = json.decode(response.body);
+      if (mapresponse['status'] == "Failed") {
+        Get.defaultDialog(
+            title: "",
+            titlePadding: EdgeInsets.only(top: 10),
+            content: Text("Please provide valid email and password"),
+            actions: [
+              MaterialButton(
+                color: Color.fromARGB(255, 91, 171, 94),
+                onPressed: () {
+                  Get.back();
+                },
+                child: Text(
+                  'OK',
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
+            ]);
+      } else {
+        print(response.body);
+        var result = await DatabaseHelper.instance.add(BookKeeperModel(
+            userid: mapresponse['userId'],
+            flow: 1,
+            appToken: mapresponse['token'],
+            userFirstName: "",
+            userMiddleName: "",
+            userLastName: "",
+            userEmailAddress: "",
+            userMobileNumber: "",
+            profileImage: "",
+            gender: "",
+            rolename: "Book Keeper"));
+        print("result=$result");
+        print("mapresponse=${mapresponse['userId']}");
+        print("login successful");
+        Get.to(homeScreen());
+      }
     } else {
-      print("Registration failed");
+      print("login failed");
     }
   }
 
@@ -135,7 +185,7 @@ class _loginScreenState extends State<loginScreen> {
                                     "Please fill all the Mandatory Fields"),
                                 actions: [
                                   MaterialButton(
-                                    color: Color.fromARGB(255, 255, 123, 0),
+                                    color: Color.fromARGB(255, 91, 171, 94),
                                     onPressed: () {
                                       Get.back();
                                     },
@@ -153,7 +203,7 @@ class _loginScreenState extends State<loginScreen> {
                                     "Please fill all the Mandatory Fields"),
                                 actions: [
                                   MaterialButton(
-                                    color: Color.fromARGB(255, 255, 123, 0),
+                                    color: Color.fromARGB(255, 91, 171, 94),
                                     onPressed: () {
                                       Get.back();
                                     },

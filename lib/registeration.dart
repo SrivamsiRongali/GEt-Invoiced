@@ -30,7 +30,8 @@ class _registration_ScreenState extends State<registration_Screen> {
       "lastName": lastname.toString(),
       "email": email.toString(),
       "mobileNumber": mobilenumber.toString(),
-      "designation": "Book-Keeper",
+      "designation": "bookKeeper",
+      "organizationId": "1",
       "password": password.toString(),
       "confirmPassword": confirmpassword.toString()
     });
