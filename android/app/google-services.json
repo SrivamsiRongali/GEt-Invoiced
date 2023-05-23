@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "612512170020",
+    "project_id": "invoiced-9258e",
+    "storage_bucket": "invoiced-9258e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612512170020:android:960368bf6a7e10ce90d8b1",
+        "android_client_info": {
+          "package_name": "com.example.invoiced"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612512170020-uunku9j1n7on4q11agq1mnmm39ucha3f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.invoiced",
+            "certificate_hash": "0dd16a2746c99192bd5f88277ac3944667469e5a"
+          }
+        },
+        {
+          "client_id": "612512170020-3b7333pefu4ib3jmdkot67l7f7j7nud7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiEE7Xc63Pg5U9plq7oEgqzYlvssIJ9Gs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612512170020-3b7333pefu4ib3jmdkot67l7f7j7nud7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -31,7 +31,7 @@ class BookKeeperModel {
   factory BookKeeperModel.fromMap(Map<String, dynamic> json) =>
       new BookKeeperModel(
         userid: json['userid'],
-        flow: json['json'],
+        flow: json['flow'],
         appToken: json['appToken'],
         userFirstName: json['userFirstName'],
         userMiddleName: json['userMiddleName'],
@@ -58,7 +58,4 @@ class BookKeeperModel {
     };
   }
 }
-
 // ignore_for_file: file_names, unnecessary_new
-
-

@@ -1,9 +1,7 @@
 // ignore_for_file: prefer_const_constructors, non_constant_identifier_names, unused_local_variable
 
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
 import 'login.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -17,6 +15,13 @@ class registration_Screen extends StatefulWidget {
 
 class _registration_ScreenState extends State<registration_Screen> {
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
+  var data = Get.arguments;
+  @override
+  void initState() {
+    super.initState();
+    orgidctrl.text = data == null ? "" : data.toString();
+  }
+
   registerapi(
       String organizationid,
       String firstname,
@@ -39,9 +44,10 @@ class _registration_ScreenState extends State<registration_Screen> {
     print("register api");
 
     http.Response response = await http.post(
-        Uri.parse("http://192.168.0.101:8082/register"),
-        headers: {"accept": "*/*", "Content-Type": "application/json"},
-        body: data);
+      Uri.parse("http://192.168.0.101:8082/register"),
+      headers: {"accept": "*/*", "Content-Type": "application/json"},
+      body: data,
+    );
     print(response);
     if (response.statusCode == 200) {
       print(response.body);

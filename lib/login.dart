@@ -1,7 +1,11 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, sized_box_for_whitespace, prefer_const_constructors, non_constant_identifier_names, camel_case_types
 
 import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
 import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:invoiced/databasehelper.dart';
@@ -9,6 +13,7 @@ import 'package:invoiced/home.dart';
 import 'package:invoiced/pojoclass.dart';
 import 'package:invoiced/registeration.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class loginScreen extends StatefulWidget {
   const loginScreen({super.key});
@@ -21,7 +26,7 @@ class _loginScreenState extends State<loginScreen> {
   @override
   void initState() {
     super.initState();
-    flow();
+    initDynamicLinks();
   }
 
   flow() async {
@@ -85,8 +90,80 @@ class _loginScreenState extends State<loginScreen> {
     }
   }
 
+  List? _statelistresponse;
+  Future _stateapi() async {
+    Map mapresponse;
+    http.Response response1;
+    var token = await DatabaseHelper.instance.getbookkeepermodel();
+
+    response1 = await http.get(
+      Uri.parse("http://192.168.0.101:8082/states"),
+      headers: {
+        "accept": "*/*",
+        "Content-Type": "application/json",
+        "Authorization": "${token[0]["appToken"]}"
+      },
+    );
+    if (response1.statusCode == 200) {
+      print('successful');
+      mapresponse = json.decode(response1.body);
+      print(response1.body);
+
+      _statelistresponse = mapresponse['message'];
+      // for(int n=0;n<_statelistresponse!.length;n++)
+      // await DatabaseHelper.instance.addstatecode(StatecodeModel(stateid: stateid, statecode: statecode, stateName: stateName))
+    } else {
+      print(response1.body);
+      print('fetch unsuccessful');
+    }
+  }
+
+  // Future<void> initDynamicLinks() async {
+  //   FirebaseDynamicLinks.instance.onLink(
+  //       onSuccess: (PendingDynamicLinkData? dynamicLink) async {
+  //     final Uri? deepLink = dynamicLink?.link;
+  //     if (deepLink != null) {
+  //       // Handle the deep link here, e.g., navigate to a specific screen
+  //       print('Received dynamic link: $deepLink');
+  //     }
+  //   }, onError: (e) async {
+  //     print('Dynamic Link Failed: ${e.message}');
+  //   });
+
+  //   final PendingDynamicLinkData? data =
+  //       await FirebaseDynamicLinks.instance.getInitialLink();
+  //   final Uri? deepLink = data?.link;
+  //   if (deepLink != null) {
+  //     // Handle the deep link here, e.g., navigate to a specific screen
+  //     print('Received initial dynamic link: $deepLink');
+  //   }
+  // }
+
+  // Rest of your app's code
+
   TextEditingController emailctrl = TextEditingController();
   TextEditingController passwordctrl = TextEditingController();
+
+  FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+
+  void initDynamicLinks() async {
+    final PendingDynamicLinkData? initallink =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+    // dynamicLinks.onLink.listen((dynamicLinkdata) {});
+
+    if (initallink != null) {
+      //  final Uri dynamiclink = initallink.link;
+      // List<String> sepreatedLink = [];
+
+      // /// osama.link.page/Hellow --> osama.link.page and Hellow
+      // sepreatedLink.addAll(dynamiclink.path.split('/'));
+      // print("The Token that i'm interesed in is ${sepreatedLink[1]}");
+
+      Get.to(registration_Screen());
+    } else {
+      flow();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

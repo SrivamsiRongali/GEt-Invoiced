@@ -19,7 +19,7 @@ class paymentModeScreen extends StatefulWidget {
 class select {
   bool value;
   int num;
-  TextEditingController? numberctrl;
+  TextEditingController numberctrl = TextEditingController();
 
   select({required this.value, required this.num});
 }
@@ -29,6 +29,7 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
   void initState() {
     super.initState();
     _modeofpaymentapi();
+    remainingamount = ValueNotifier<int>(total);
   }
 
   Future _modeofpaymentapi() async {
@@ -61,7 +62,7 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
   List? listresponse;
   List<select> selectedval = List.empty(growable: true);
   int total = 1000;
-  int remainingamount = 0;
+  late ValueNotifier<int> remainingamount;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +77,13 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
               Wrap(
                 children: [
                   Text("reaminig"),
-                  Text("$remainingamount"),
+                  Text(
+                    "${remainingamount.value}",
+                    style: TextStyle(
+                        color: remainingamount.value < 0
+                            ? Colors.red
+                            : Colors.black),
+                  ),
                 ],
               ),
               Container(
@@ -89,7 +96,7 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
                         value: false,
                         num: 0,
                       ));
-                      remainingamount = total;
+
                       return listresponse == null
                           ? Container(
                               height: 200,
@@ -121,7 +128,7 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
                                                 if (selectedval[index].value ==
                                                     false) {
                                                   selectedval[index]
-                                                      .numberctrl!
+                                                      .numberctrl
                                                       .clear();
                                                 }
                                               }),
@@ -163,18 +170,31 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
                                                   .digitsOnly
                                             ],
                                             onChanged: (value) {
+                                              int remaining = 0;
+                                              for (int n = 0;
+                                                  n < selectedval.length;
+                                                  n++) {
+                                                String num = selectedval[n]
+                                                            .numberctrl
+                                                            .text ==
+                                                        ""
+                                                    ? "0"
+                                                    : selectedval[n]
+                                                        .numberctrl
+                                                        .text;
+                                                setState(() {
+                                                  remaining = remaining +
+                                                      int.parse(num);
+                                                });
+                                              }
                                               setState(() {
-                                                selectedval[index].num =
-                                                    int.parse(value);
-                                                remainingamount = total -
-                                                    (value == null
-                                                        ? 0
-                                                        : selectedval[index]
-                                                            .num
-                                                            .toInt());
-                                                print(
-                                                    "numvalue=${selectedval[index].num}");
+                                                remainingamount.value =
+                                                    total - remaining;
                                               });
+                                              // selectedval[index].num =
+                                              //     int.parse(value);
+
+                                              print("numvalue=$remaining");
                                             },
                                           ),
                                         ),

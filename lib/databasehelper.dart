@@ -21,7 +21,8 @@ class DatabaseHelper {
   }
 
   Future _onCreate(Database db, int version) async {
-    await db.execute('''CREATE TABLE bookKeeperModel( roleid INTEGER,
+    await db.execute('''CREATE TABLE bookKeeperModel( 
+      roleid INTEGER,
  userid INTEGER,
  flow INTEGER,
    appToken STRING,
@@ -30,7 +31,7 @@ userMiddleName STRING,
 userLastName STRING,
 userEmailAddress STRING,
 userMobileNumber STRING,
-profileImage   VAR ,
+profileImage  VAR ,
 gender STRING,
 rolename STRING,
 baseurl STRING
