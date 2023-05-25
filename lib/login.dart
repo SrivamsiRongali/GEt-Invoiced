@@ -69,7 +69,7 @@ class _loginScreenState extends State<loginScreen> {
       } else {
         print(response.body);
         var result = await DatabaseHelper.instance.add(BookKeeperModel(
-            userid: mapresponse['userId'],
+            userid: (mapresponse['userId']),
             flow: 1,
             appToken: mapresponse['token'],
             userFirstName: "",
@@ -87,34 +87,6 @@ class _loginScreenState extends State<loginScreen> {
       }
     } else {
       print("login failed");
-    }
-  }
-
-  List? _statelistresponse;
-  Future _stateapi() async {
-    Map mapresponse;
-    http.Response response1;
-    var token = await DatabaseHelper.instance.getbookkeepermodel();
-
-    response1 = await http.get(
-      Uri.parse("http://192.168.0.101:8082/states"),
-      headers: {
-        "accept": "*/*",
-        "Content-Type": "application/json",
-        "Authorization": "${token[0]["appToken"]}"
-      },
-    );
-    if (response1.statusCode == 200) {
-      print('successful');
-      mapresponse = json.decode(response1.body);
-      print(response1.body);
-
-      _statelistresponse = mapresponse['message'];
-      // for(int n=0;n<_statelistresponse!.length;n++)
-      // await DatabaseHelper.instance.addstatecode(StatecodeModel(stateid: stateid, statecode: statecode, stateName: stateName))
-    } else {
-      print(response1.body);
-      print('fetch unsuccessful');
     }
   }
 

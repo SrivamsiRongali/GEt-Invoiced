@@ -4,39 +4,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:get/get.dart';
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:invoiced/databasehelper.dart';
+import 'package:invoiced/pojoclass.dart';
 
-class paymentModeScreen extends StatefulWidget {
-  const paymentModeScreen({super.key});
+import 'addinvoice_payment_mode.dart';
+import 'edit_GST_invoice.dart';
+import 'edit_Non_GST_Invoice.dart';
+import 'home.dart';
+
+class editinvoicepaymentModeScreen extends StatefulWidget {
+  const editinvoicepaymentModeScreen({super.key});
 
   @override
-  State<paymentModeScreen> createState() => _paymentModeScreenState();
+  State<editinvoicepaymentModeScreen> createState() =>
+      _editinvoicepaymentModeScreenState();
 }
 
-class select {
-  bool value;
-  int num;
-  TextEditingController numberctrl = TextEditingController();
+// class select {
+//   bool value;
+//   int id;
+//   TextEditingController numberctrl = TextEditingController();
 
-  select({required this.value, required this.num});
-}
+//   select({
+//     required this.value,required this.id
+//   });
+// }
 
-class _paymentModeScreenState extends State<paymentModeScreen> {
+class _editinvoicepaymentModeScreenState
+    extends State<editinvoicepaymentModeScreen> {
   @override
   void initState() {
     super.initState();
     _modeofpaymentapi();
-    remainingamount = ValueNotifier<int>(total);
+    remainingamount = ValueNotifier<int>(val[0]);
   }
 
+  var modeofpayments;
   Future _modeofpaymentapi() async {
     Map mapresponse;
     http.Response response1;
     var token = await DatabaseHelper.instance.getbookkeepermodel();
-
+    var listofmodeofpayments =
+        await DatabaseHelper.instance.getmodeofpayments();
     response1 = await http.get(
       Uri.parse("http://192.168.0.101:8082/paymentMethods"),
       headers: {
@@ -51,7 +64,9 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
       print(response1.body);
       setState(() {
         listresponse = mapresponse['message'];
+        modeofpayments = listofmodeofpayments;
       });
+
       print("listresponse= $listresponse");
     } else {
       print(response1.body);
@@ -59,9 +74,10 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
     }
   }
 
+  var val = Get.arguments;
   List? listresponse;
   List<select> selectedval = List.empty(growable: true);
-  int total = 1000;
+
   late ValueNotifier<int> remainingamount;
 
   @override
@@ -93,9 +109,20 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
                     itemCount: listresponse == null ? 1 : listresponse!.length,
                     itemBuilder: (context, index) {
                       selectedval.add(select(
-                        value: false,
-                        num: 0,
-                      ));
+                          value: false,
+                          id: listresponse![index]["paymentMethodId"]));
+
+                      if (modeofpayments != null) {
+                        for (int n = 0; n < val[1].length; n++) {
+                          if (listresponse![index]["paymentMethodId"] ==
+                              modeofpayments[n]['paymentMethodId']) {
+                            setState(() {
+                              selectedval[index].numberctrl.text =
+                                  modeofpayments[n]['paymentValue'].toString();
+                            });
+                          }
+                        }
+                      }
 
                       return listresponse == null
                           ? Container(
@@ -133,7 +160,8 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
                                                 }
                                               }),
                                           Text(listresponse![index]
-                                              ['paymethodName']),
+                                                  ['paymentMethodName']
+                                              .toString()),
                                         ],
                                       ),
                                       Container(
@@ -189,7 +217,7 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
                                               }
                                               setState(() {
                                                 remainingamount.value =
-                                                    total - remaining;
+                                                    (val[0]) - remaining;
                                               });
                                               // selectedval[index].num =
                                               //     int.parse(value);
@@ -206,6 +234,51 @@ class _paymentModeScreenState extends State<paymentModeScreen> {
                             );
                     }),
               ),
+              MaterialButton(
+                color: remainingamount.value == 0
+                    ? Color.fromARGB(255, 91, 171, 94)
+                    : Color.fromARGB(255, 191, 191, 191),
+                onPressed: () async {
+                  if (val[1] == true) {
+                    if (remainingamount.value == 0) {
+                      await DatabaseHelper.instance.removemodeofpayment();
+                      for (int n = 0; n < selectedval.length; n++) {
+                        if (selectedval[n].value == true) {
+                          await DatabaseHelper.instance.addmodeofpayment(
+                              Modeofpayment(
+                                  modeOfPaymentId: selectedval[n].id,
+                                  paymentValue: int.parse(
+                                      selectedval[n].numberctrl.text.length == 0
+                                          ? "0"
+                                          : selectedval[n].numberctrl.text)));
+                        }
+                      }
+                      var data =
+                          await DatabaseHelper.instance.getmodeofpayments();
+                      print("data=$data");
+                    }
+                  } else {
+                    if (remainingamount.value == 0) {
+                      await DatabaseHelper.instance.removemodeofpayment();
+                      for (int n = 0; n < selectedval.length; n++) {
+                        if (selectedval[n].value == true) {
+                          await DatabaseHelper.instance.addmodeofpayment(
+                              Modeofpayment(
+                                  modeOfPaymentId: selectedval[n].id,
+                                  paymentValue: int.parse(
+                                      selectedval[n].numberctrl.text.length == 0
+                                          ? "0"
+                                          : selectedval[n].numberctrl.text)));
+                        }
+                      }
+                      var data =
+                          await DatabaseHelper.instance.getmodeofpayments();
+                      print("data=$data");
+                    }
+                  }
+                },
+                child: Text("Save"),
+              )
             ],
           ),
         ),

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:invoiced/payment_mode.dart';
+import 'package:invoiced/addinvoice_payment_mode.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
@@ -28,6 +28,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
   void initState() {
     // TODO: implement initState
     print("api request is enter");
+
     _vendorapi();
     _itemapi();
     _stateapi();
@@ -168,6 +169,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
       print("Image Uploaded");
       var res = await http.Response.fromStream(response);
       var val = json.decode(res.body);
+      var modeofpayments = await DatabaseHelper.instance.getmodeofpayments();
       addGSTbillapi(
           1,
           GSTvendorid,
@@ -191,7 +193,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
           int.parse(CGSTratectrl.text),
           int.parse(CGSTamountctrl.text),
           val['billImagePath'],
-          1);
+          modeofpayments);
     } else {
       Get.defaultDialog(
           title: "Unable to uploaded",
@@ -230,7 +232,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
       int cgstrate,
       int cgstamount,
       String billImgaePath,
-      var modeofPayment) async {
+      List modeofPayments) async {
     var token = await DatabaseHelper.instance.getbookkeepermodel();
     var data = json.encode({
       "organizationId": orgid,
@@ -255,7 +257,11 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
       "cgstRate": cgstrate,
       "cgstAmount": cgstamount,
       "billImagePath": billImgaePath,
-      "modeOfPaymentId": 1
+      "modeOfPayments": modeofPayments,
+      "billCreatedOn": "",
+      "billCreatedBy": "",
+      "billUpdatedOn": "",
+      "billUpdatedBy": "",
     });
     Map mapresponse;
 
@@ -269,7 +275,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
             body: data);
     if (response.statusCode == 200) {
       mapresponse = json.decode(response.body);
-
+      await DatabaseHelper.instance.removemodeofpayment();
       Get.to(homeScreen());
     } else {
       print("login failed");
@@ -277,6 +283,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
   }
 
   uploadNonGSTimage() async {
+    var token = await DatabaseHelper.instance.getbookkeepermodel();
     var stream = http.ByteStream(NonGSTimage!.openRead());
     stream.cast();
     var length = await NonGSTimage!.length();
@@ -285,6 +292,8 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
 
     Map<String, String> headers = {
       "Accept": "*/*",
+      "Content-Type": "application/json",
+      "Authorization": "${token[0]["appToken"]}"
     };
     String filename = NonGSTimage!.path.split("/").last;
     var multiport = new http.MultipartFile("billImagePath", stream, length,
@@ -299,6 +308,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
       print("Image Uploaded");
       var res = await http.Response.fromStream(response);
       var val = json.decode(res.body);
+      var modeofpayments = await DatabaseHelper.instance.getmodeofpayments();
       addNonGSTbillapi(
           1,
           NonGSTvendorid,
@@ -306,15 +316,15 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
           NonGSTitemid,
           Non_GSTitemctrl.text,
           instrument_referance_numberctrl.text,
-          instrumentdatectrl.text,
+          "${NonGSTdate.year}-${NonGSTdate.month}-${NonGSTdate.day}",
           int.parse(instrument_valuectrl.text),
           goods_servicesctrl.text,
-          int.parse(NonGSTtaxablevalctrl.text),
+          0,
           int.parse(quantity_ctrl.text),
-          NonGSTunitctrl.text,
+          instrumentunitctrl.text,
           int.parse(instrumenttotalvaluectrl.text),
           val['billImagePath'],
-          1);
+          modeofpayments);
     } else {
       Get.defaultDialog(
           title: "Unable to uploaded",
@@ -345,29 +355,33 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
       String unit,
       int instrumentTotalValue,
       String billImgaePath,
-      var modeofPayment) async {
+      List modeofPayments) async {
     var token = await DatabaseHelper.instance.getbookkeepermodel();
     var data = json.encode({
       "organizationId": orgid,
-      "vendorId": 123,
+      "vendorId": vendorid,
       "vendorName": vendorname,
-      "itemId": 456,
+      "itemId": itemid,
       "itemName": itemName,
-      "instrumentReferenceNumber": "REF-001",
-      "instrumentDate": "2023-05-20",
-      "instrumentValue": 1000,
-      "goodsServiceDescription": "Description of goods/services",
-      "taxableValue": 900,
-      "quantity": 10,
-      "unit": "Piece",
-      "instrumentTotalValue": 1200,
-      "billImagePath": "path/to/bill/image.jpg",
-      "modeOfPaymentId": 1
+      "instrumentReferenceNumber": instrumentReferenceNumber,
+      "instrumentDate": instrumentDate,
+      "instrumentValue": instrumentValue,
+      "goodsServiceDescription": goodsServiceDescription,
+      "taxableValue": taxableValue,
+      "quantity": quantity,
+      "unit": unit,
+      "instrumentTotalValue": instrumentTotalValue,
+      "billImagePath": billImgaePath,
+      "billCreatedOn": "",
+      "billCreatedBy": "",
+      "billUpdatedOn": "",
+      "billUpdatedBy": "",
+      "modeOfPayments": modeofPayments
     });
     Map mapresponse;
 
     http.Response response =
-        await http.post(Uri.parse("http://192.168.0.101:8082/gstBill"),
+        await http.post(Uri.parse("http://192.168.0.101:8082/nonGstBill"),
             headers: {
               "accept": "*/*",
               "Content-Type": "application/json",
@@ -376,7 +390,8 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
             body: data);
     if (response.statusCode == 200) {
       mapresponse = json.decode(response.body);
-
+      print(response.body);
+      await DatabaseHelper.instance.removemodeofpayment();
       Get.to(homeScreen());
     } else {
       print("login failed");
@@ -456,6 +471,9 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
       ),
     );
   }
+
+  DateTime GSTdate = DateTime.now();
+  DateTime NonGSTdate = DateTime.now();
 
   Gst(var screensize, BuildContext context) {
     return Scaffold(
@@ -557,7 +575,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             )
                           ],
                         ),
-                        fields(invoicedatectrl, true, false),
+                        Datefields(invoicedatectrl, true, context),
                         SizedBox(
                           height: 15,
                         ),
@@ -757,7 +775,10 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                         ),
                         MaterialButton(
                           onPressed: () {
-                            Get.to(paymentModeScreen());
+                            Get.to(addinvoicepaymentModeScreen(), arguments: [
+                              int.parse(invoicevaluectrl.text),
+                              true
+                            ]);
                           },
                           height: screensize.height * 0.065,
                           color: Color.fromARGB(255, 91, 171, 94),
@@ -878,7 +899,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             )
                           ],
                         ),
-                        fields(instrumentdatectrl, true, false),
+                        Datefields(instrumentdatectrl, false, context),
                         SizedBox(
                           height: 15,
                         ),
@@ -973,12 +994,12 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             height: screensize.height * 0.2,
                             width: screensize.width * 0.7,
                             child: Center(
-                              child: GSTimage == null
+                              child: NonGSTimage == null
                                   ? Text(
                                       "Upload Image",
                                       style: TextStyle(color: Colors.grey),
                                     )
-                                  : Image.file(GSTimage!),
+                                  : Image.file(NonGSTimage!),
                             ),
                           ),
                         ),
@@ -987,7 +1008,10 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                         ),
                         MaterialButton(
                           onPressed: () {
-                            Get.to(paymentModeScreen());
+                            Get.to(addinvoicepaymentModeScreen(), arguments: [
+                              int.parse(instrumenttotalvaluectrl.text),
+                              false
+                            ]);
                           },
                           height: screensize.height * 0.065,
                           color: Color.fromARGB(255, 91, 171, 94),
@@ -1012,7 +1036,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             uploadNonGSTimage();
                           },
                           height: screensize.height * 0.065,
-                          color: Color.fromARGB(255, 10, 31, 11),
+                          color: Color.fromARGB(255, 91, 171, 94),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(7)),
                           child: Row(
@@ -1092,6 +1116,51 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
     );
   }
 
+  Datefields(
+      TextEditingController controller, bool type, BuildContext context) {
+    return Container(
+      height: 50,
+      child: TextFormField(
+        keyboardType: TextInputType.none,
+        onTap: () async {
+          print("date is about select");
+          final DateTime? selectdate = await showDatePicker(
+              context: context,
+              initialDate: type == true ? GSTdate : NonGSTdate,
+              firstDate: DateTime(1500),
+              lastDate: DateTime.now());
+          if (selectdate != null) {
+            setState(() {
+              type == true ? GSTdate = selectdate : NonGSTdate = selectdate;
+            });
+          }
+          type == true
+              ? invoicedatectrl.text =
+                  "${GSTdate.day}-${GSTdate.month}-${GSTdate.year}"
+              : instrumentdatectrl.text =
+                  "${NonGSTdate.day}-${NonGSTdate.month}-${NonGSTdate.year}";
+        },
+        controller: controller,
+        decoration: InputDecoration(
+            disabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              width: 2,
+              color: Color.fromARGB(255, 216, 216, 216),
+            )),
+            enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              width: 2,
+              color: Color.fromARGB(255, 216, 216, 216),
+            )),
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              width: 2,
+              color: Color.fromARGB(255, 29, 134, 182),
+            ))),
+      ),
+    );
+  }
+
   TextEditingController GSTINctrl = TextEditingController();
   TextEditingController statectrl = TextEditingController();
   TextEditingController invoicenumberctrl = TextEditingController();
@@ -1114,7 +1183,6 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
   TextEditingController instrument_valuectrl = TextEditingController();
   TextEditingController goods_servicesctrl = TextEditingController();
   TextEditingController quantity_ctrl = TextEditingController();
-  TextEditingController NonGSTunitctrl = TextEditingController();
   TextEditingController NonGSTtaxablevalctrl = TextEditingController();
   TextEditingController instrumentunitctrl = TextEditingController();
   TextEditingController instrumenttotalvaluectrl = TextEditingController();

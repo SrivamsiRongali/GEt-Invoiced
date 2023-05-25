@@ -22,7 +22,6 @@ class DatabaseHelper {
 
   Future _onCreate(Database db, int version) async {
     await db.execute('''CREATE TABLE bookKeeperModel( 
-      roleid INTEGER,
  userid INTEGER,
  flow INTEGER,
    appToken STRING,
@@ -36,12 +35,15 @@ gender STRING,
 rolename STRING,
 baseurl STRING
 )''');
+    print('table created');
+    await db.execute(
+        '''CREATE TABLE modeofpayment(modeOfPaymentId INTEGER,paymentValue INTEGER)''');
   }
 
   Future<List<Map<String, Object?>>> getbookkeepermodel() async {
     Database db = await instance.database;
     var results = await db.query('bookKeeperModel', orderBy: 'userid');
-    print('$results');
+
     return results;
   }
 
@@ -74,5 +76,28 @@ baseurl STRING
     Database db = await instance.database;
     var results = await db.rawQuery("UPDATE appData Set flow=$flow");
     return results;
+  }
+
+  Future<List<Map<String, Object?>>> getmodeofpayments() async {
+    Database db = await instance.database;
+    var results = await db.query('modeofpayment', orderBy: 'modeOfPaymentId');
+
+    return results;
+  }
+
+  Future<int> addmodeofpayment(Modeofpayment modeofpayment) async {
+    Database db = await instance.database;
+    var results = await db.insert(
+      'modeofpayment',
+      modeofpayment.toMap(),
+    );
+    print("added userdata=$results");
+    return results;
+  }
+
+  Future<int> removemodeofpayment() async {
+    Database db = await instance.database;
+    print('userdeleted');
+    return await db.delete('modeofpayment');
   }
 }

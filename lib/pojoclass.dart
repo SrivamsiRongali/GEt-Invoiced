@@ -58,4 +58,26 @@ class BookKeeperModel {
     };
   }
 }
+
 // ignore_for_file: file_names, unnecessary_new
+class Modeofpayment {
+  int modeOfPaymentId;
+  int paymentValue;
+
+  Modeofpayment({
+    required this.modeOfPaymentId,
+    required this.paymentValue,
+  });
+
+  // ignore: unnecessary_new
+  factory Modeofpayment.fromMap(Map<String, dynamic> json) => new Modeofpayment(
+        modeOfPaymentId: json['modeOfPaymentId'],
+        paymentValue: json['paymentValue'],
+      );
+  Map<String, dynamic> toMap() {
+    return {
+      'modeOfPaymentId': modeOfPaymentId,
+      "paymentValue": paymentValue,
+    };
+  }
+}
