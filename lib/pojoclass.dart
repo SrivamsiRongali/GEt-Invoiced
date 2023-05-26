@@ -60,23 +60,47 @@ class BookKeeperModel {
 }
 
 // ignore_for_file: file_names, unnecessary_new
-class Modeofpayment {
+class Gstmodeofpayment {
   int modeOfPaymentId;
   int paymentValue;
 
-  Modeofpayment({
+  Gstmodeofpayment({
     required this.modeOfPaymentId,
     required this.paymentValue,
   });
 
   // ignore: unnecessary_new
-  factory Modeofpayment.fromMap(Map<String, dynamic> json) => new Modeofpayment(
+  factory Gstmodeofpayment.fromMap(Map<String, dynamic> json) =>
+      new Gstmodeofpayment(
         modeOfPaymentId: json['modeOfPaymentId'],
         paymentValue: json['paymentValue'],
       );
   Map<String, dynamic> toMap() {
     return {
       'modeOfPaymentId': modeOfPaymentId,
+      "paymentValue": paymentValue,
+    };
+  }
+}
+
+class Nongstmodeofpayment {
+  int modeOfPaymentId;
+  int paymentValue;
+
+  Nongstmodeofpayment({
+    required this.modeOfPaymentId,
+    required this.paymentValue,
+  });
+
+  // ignore: unnecessary_new
+  factory Nongstmodeofpayment.fromMap(Map<String, dynamic> json) =>
+      new Nongstmodeofpayment(
+        modeOfPaymentId: json['modeOfPaymentId'],
+        paymentValue: json['paymentValue'],
+      );
+  Map<String, dynamic> toMap() {
+    return {
+      "modeOfPaymentId": modeOfPaymentId,
       "paymentValue": paymentValue,
     };
   }

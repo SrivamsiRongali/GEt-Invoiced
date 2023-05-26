@@ -37,7 +37,9 @@ baseurl STRING
 )''');
     print('table created');
     await db.execute(
-        '''CREATE TABLE modeofpayment(modeOfPaymentId INTEGER,paymentValue INTEGER)''');
+        '''CREATE TABLE gstmodeofpayment(modeOfPaymentId INTEGER,paymentValue INTEGER)''');
+    await db.execute(
+        '''CREATE TABLE nongstmodeofpayment(modeOfPaymentId INTEGER,paymentValue INTEGER)''');
   }
 
   Future<List<Map<String, Object?>>> getbookkeepermodel() async {
@@ -78,26 +80,52 @@ baseurl STRING
     return results;
   }
 
-  Future<List<Map<String, Object?>>> getmodeofpayments() async {
+  Future<List<Map<String, Object?>>> getGSTmodeofpayments() async {
     Database db = await instance.database;
-    var results = await db.query('modeofpayment', orderBy: 'modeOfPaymentId');
+    var results =
+        await db.query('gstmodeofpayment', orderBy: 'modeOfPaymentId');
 
     return results;
   }
 
-  Future<int> addmodeofpayment(Modeofpayment modeofpayment) async {
+  Future<int> addGSTmodeofpayment(Gstmodeofpayment gstmodeofpayment) async {
     Database db = await instance.database;
     var results = await db.insert(
-      'modeofpayment',
-      modeofpayment.toMap(),
+      'gstmodeofpayment',
+      gstmodeofpayment.toMap(),
     );
     print("added userdata=$results");
     return results;
   }
 
-  Future<int> removemodeofpayment() async {
+  Future<int> removeGSTmodeofpayment() async {
     Database db = await instance.database;
     print('userdeleted');
-    return await db.delete('modeofpayment');
+    return await db.delete('gstmodeofpayment');
+  }
+
+  Future<List<Map<String, Object?>>> getNonGSTmodeofpayments() async {
+    Database db = await instance.database;
+    var results =
+        await db.query('nongstmodeofpayment', orderBy: 'modeOfPaymentId');
+
+    return results;
+  }
+
+  Future<int> addNonGSTmodeofpayment(
+      Nongstmodeofpayment nongstmodeofpayment) async {
+    Database db = await instance.database;
+    var results = await db.insert(
+      'nongstmodeofpayment',
+      nongstmodeofpayment.toMap(),
+    );
+    print("added userdata=$results");
+    return results;
+  }
+
+  Future<int> removenonGSTmodeofpayment() async {
+    Database db = await instance.database;
+    print('userdeleted');
+    return await db.delete('nongstmodeofpayment');
   }
 }

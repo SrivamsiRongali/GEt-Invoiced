@@ -49,13 +49,13 @@ class _editinvoicepaymentModeScreenState
     http.Response response1;
     var token = await DatabaseHelper.instance.getbookkeepermodel();
     var listofmodeofpayments =
-        await DatabaseHelper.instance.getmodeofpayments();
+        await DatabaseHelper.instance.getGSTmodeofpayments();
     response1 = await http.get(
       Uri.parse("http://192.168.0.101:8082/paymentMethods"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
-        "Authorization": "${token[0]["appToken"]}"
+        "Authorization": "Bearer ${token[0]["appToken"]}"
       },
     );
     if (response1.statusCode == 200) {
@@ -241,11 +241,11 @@ class _editinvoicepaymentModeScreenState
                 onPressed: () async {
                   if (val[1] == true) {
                     if (remainingamount.value == 0) {
-                      await DatabaseHelper.instance.removemodeofpayment();
+                      await DatabaseHelper.instance.removeGSTmodeofpayment();
                       for (int n = 0; n < selectedval.length; n++) {
                         if (selectedval[n].value == true) {
-                          await DatabaseHelper.instance.addmodeofpayment(
-                              Modeofpayment(
+                          await DatabaseHelper.instance.addGSTmodeofpayment(
+                              Gstmodeofpayment(
                                   modeOfPaymentId: selectedval[n].id,
                                   paymentValue: int.parse(
                                       selectedval[n].numberctrl.text.length == 0
@@ -254,16 +254,17 @@ class _editinvoicepaymentModeScreenState
                         }
                       }
                       var data =
-                          await DatabaseHelper.instance.getmodeofpayments();
+                          await DatabaseHelper.instance.getGSTmodeofpayments();
                       print("data=$data");
+                      Get.back();
                     }
                   } else {
                     if (remainingamount.value == 0) {
-                      await DatabaseHelper.instance.removemodeofpayment();
+                      await DatabaseHelper.instance.removenonGSTmodeofpayment();
                       for (int n = 0; n < selectedval.length; n++) {
                         if (selectedval[n].value == true) {
-                          await DatabaseHelper.instance.addmodeofpayment(
-                              Modeofpayment(
+                          await DatabaseHelper.instance.addNonGSTmodeofpayment(
+                              Nongstmodeofpayment(
                                   modeOfPaymentId: selectedval[n].id,
                                   paymentValue: int.parse(
                                       selectedval[n].numberctrl.text.length == 0
@@ -271,9 +272,10 @@ class _editinvoicepaymentModeScreenState
                                           : selectedval[n].numberctrl.text)));
                         }
                       }
-                      var data =
-                          await DatabaseHelper.instance.getmodeofpayments();
+                      var data = await DatabaseHelper.instance
+                          .getNonGSTmodeofpayments();
                       print("data=$data");
+                      Get.back();
                     }
                   }
                 },

@@ -34,7 +34,7 @@ class _homeScreenState extends State<homeScreen> {
     var token = await DatabaseHelper.instance.getbookkeepermodel();
     print("${token[0]["appToken"]}");
     response1 = await http.get(
-      Uri.parse("http://192.168.0.101:8082/dashBoard"),
+      Uri.parse("http://192.168.0.101:8082/bills"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
@@ -66,22 +66,7 @@ class _homeScreenState extends State<homeScreen> {
           backgroundColor: Color.fromARGB(255, 29, 134, 182),
         ),
         body: Container(
-          child: Center(
-            child: Column(
-              children: [
-                TextButton(
-                    onPressed: () {
-                      Get.to(editGSTInvoiceScreen());
-                    },
-                    child: Text("Edit GST invoice")),
-                TextButton(
-                    onPressed: () {
-                      Get.to(editNonGSTInvoiceScreen());
-                    },
-                    child: Text("Edit  Non GST invoice")),
-              ],
-            ),
-          ),
+          child: Center(child: home()),
         ),
         floatingActionButton: FloatingActionButton.extended(
             backgroundColor: Color.fromARGB(255, 91, 171, 94),
@@ -90,5 +75,40 @@ class _homeScreenState extends State<homeScreen> {
             },
             icon: Icon(Icons.add),
             label: Text("Add")));
+  }
+
+  home() {
+    return ListView.builder(
+        itemCount: listresponse == null ? 1 : listresponse!.length,
+        itemBuilder: (context, index) {
+          var date = DateTime.fromMicrosecondsSinceEpoch(
+              listresponse![index]['billCreatedOn']);
+          return listresponse == null
+              ? Container(
+                  height: 300,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text(date.toString()),
+                      ListTile(
+                        onTap: () {
+                          Get.to(editGSTInvoiceScreen(),
+                              arguments: listresponse![index]['billId']);
+                        },
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            side: BorderSide(width: 2)),
+                        leading: Text(
+                            "${listresponse![index]['vendorId']}-${listresponse![index]['billId']}"),
+                        trailing:
+                            Text("${listresponse![index]['billCreatedOn']}"),
+                      ),
+                    ],
+                  ),
+                );
+        });
   }
 }

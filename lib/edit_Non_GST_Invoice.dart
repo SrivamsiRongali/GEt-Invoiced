@@ -29,11 +29,13 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
   @override
   void initState() {
     // TODO: implement initState
+    NonGSTvendorslistresponse = ValueNotifier<List>([]);
+    _NonGSTitemlistresponse = ValueNotifier<List>([]);
     print("api request is enter");
 
     _NonGSTbillapi();
-    _vendorapi();
-    _itemapi();
+    _NonGSTvendorapi();
+    _NonGSTitemapi();
 
     super.initState();
   }
@@ -50,7 +52,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
-        "Authorization": "${token[0]["appToken"]}"
+        "Authorization": "Bearer ${token[0]["appToken"]}"
       },
     );
     if (response1.statusCode == 200) {
@@ -82,38 +84,60 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
     }
   }
 
-  List? vendorslistresponse;
+  ValueNotifier<List>? NonGSTvendorslistresponse;
 
-  Future _vendorapi() async {
+  Future _NonGSTvendorapi() async {
     Map mapresponse;
     http.Response response1;
 
     var token = await DatabaseHelper.instance.getbookkeepermodel();
     print("vendor api request is sent");
     response1 = await http.get(
-      Uri.parse("http://192.168.0.101:8082/vendors/1"),
+      Uri.parse(
+          "http://192.168.0.101:8082/searchVendor?vendorName=${Non_GSTvendorctrl.text}"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
-        "Authorization": "${token[0]["appToken"]}"
+        "Authorization": "Bearer ${token[0]["appToken"]}"
       },
     );
     if (response1.statusCode == 200) {
       print('successful');
       mapresponse = json.decode(response1.body);
       print(response1.body);
-      setState(() {
-        vendorslistresponse = mapresponse['message'];
-      });
-      print("vendorslistresponse= $vendorslistresponse");
+      NonGSTvendorslistresponse?.value = mapresponse['message'];
+      if (NonGSTvendorslistresponse?.value == []) {
+        print("vendor response is null");
+        setState(() {
+          NonGSTvendorslistresponse?.value = [];
+        });
+
+        // Get.defaultDialog(
+        //     title: "Vendor Does Not exist",
+        //     content: Text("Please add Vendor before adding the bill"),
+        //     actions: [
+        //       MaterialButton(
+        //         onPressed: () {
+        //           Get.back();
+        //         },
+        //         child: Text("ok"),
+        //       ),
+        //     ]);
+      } else {
+        setState(() {
+          NonGSTvendorslistresponse?.value = mapresponse['message'];
+        });
+      }
+
+      print("NonGSTvendorslistresponse= ${NonGSTvendorslistresponse?.value}");
     } else {
       print(response1.body);
       print('fetch unsuccessful');
     }
   }
 
-  List? _itemlistresponse;
-  Future _itemapi() async {
+  ValueNotifier<List>? _NonGSTitemlistresponse;
+  Future _NonGSTitemapi() async {
     Map mapresponse;
     http.Response response1;
 
@@ -121,11 +145,12 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
     print("item api request is sent");
 
     response1 = await http.get(
-      Uri.parse("http://192.168.0.101:8082/items/1"),
+      Uri.parse(
+          "http://192.168.0.101:8082/searchItem?itemName=${Non_GSTitemctrl.text}"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
-        "Authorization": "${token[0]["appToken"]}"
+        "Authorization": "Bearer ${token[0]["appToken"]}"
       },
     );
     if (response1.statusCode == 200) {
@@ -133,9 +158,10 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       mapresponse = json.decode(response1.body);
       print(response1.body);
       setState(() {
-        _itemlistresponse = mapresponse['message'];
+        _NonGSTitemlistresponse?.value = mapresponse['message'];
       });
-      print("vendorslistresponse= $_itemlistresponse");
+
+      print("itemlistresponse= ${_NonGSTitemlistresponse?.value}");
     } else {
       print(response1.body);
       print('fetch unsuccessful');
@@ -177,6 +203,12 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
     var screensize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () async {
+              await DatabaseHelper.instance.removenonGSTmodeofpayment();
+              Get.offAll(homeScreen());
+            },
+            icon: Icon(Icons.arrow_back)),
         actions: [
           IconButton(
               onPressed: () {
@@ -244,14 +276,14 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: vendorslistresponse == null
+          child: NonGSTvendorslistresponse!.value == null
               ? Container(
                   height: 300,
                   child: Center(
                     child: CircularProgressIndicator(),
                   ),
                 )
-              : _itemlistresponse == null
+              : _NonGSTitemlistresponse!.value == null
                   ? Container(
                       height: 300,
                       child: Center(
@@ -313,7 +345,8 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
                             )
                           ],
                         ),
-                        forexample(vendorslistresponse!, edit, true),
+                        forexample(
+                            NonGSTvendorslistresponse!.value, edit, true),
                         SizedBox(
                           height: 15,
                         ),
@@ -326,7 +359,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
                             )
                           ],
                         ),
-                        forexample(_itemlistresponse!, edit, false),
+                        forexample(_NonGSTitemlistresponse!.value, edit, false),
                         SizedBox(
                           height: 15,
                         ),
@@ -452,8 +485,84 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
                           height: 15,
                         ),
                         MaterialButton(
-                          onPressed: () {
-                            uploadNonGSTimage();
+                          onPressed: () async {
+                            if (edit == true) {
+                              setState(() {});
+                              var modeofpayments = await DatabaseHelper.instance
+                                  .getNonGSTmodeofpayments();
+                              print("modeofpayments=$modeofpayments");
+                              if (Non_GSTvendorctrl.text.isEmpty ||
+                                  Non_GSTitemctrl.text.isEmpty ||
+                                  instrument_referance_numberctrl
+                                      .text.isEmpty ||
+                                  instrumentdatectrl.text.isEmpty ||
+                                  instrument_valuectrl.text.isEmpty ||
+                                  goods_servicesctrl.text.isEmpty ||
+                                  quantity_ctrl.text.isEmpty ||
+                                  instrumentunitctrl.text.isEmpty ||
+                                  instrumenttotalvaluectrl.text.isEmpty ||
+                                  NonGSTimage == null) {
+                                Get.defaultDialog(
+                                    title: "",
+                                    content: Text(
+                                        "Please fill all the mandatory fields"));
+                              } else if (modeofpayments == null) {
+                                Get.defaultDialog(
+                                    title: "",
+                                    content:
+                                        Text("Please provide mode of payment"));
+                              } else {
+                                NonGSTvendorid == null
+                                    ? Get.defaultDialog(
+                                        title: "Vendor not available",
+                                        content: Text(
+                                            "Please add vendor before saving the bill"),
+                                        actions: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                MaterialButton(
+                                                  onPressed: () {
+                                                    Get.back();
+                                                  },
+                                                  child: Text("Cancel"),
+                                                ),
+                                                MaterialButton(
+                                                  onPressed: () {},
+                                                  child: Text("Ok"),
+                                                )
+                                              ],
+                                            )
+                                          ])
+                                    : NonGSTitemid == null
+                                        ? Get.defaultDialog(
+                                            title: "Item not available",
+                                            content: Text(
+                                                "Please add Item before saving the bill"),
+                                            actions: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    MaterialButton(
+                                                      onPressed: () {
+                                                        Get.back();
+                                                      },
+                                                      child: Text("Cancel"),
+                                                    ),
+                                                    MaterialButton(
+                                                      onPressed: () {},
+                                                      child: Text("Ok"),
+                                                    )
+                                                  ],
+                                                )
+                                              ])
+                                        : uploadNonGSTimage();
+                              }
+                            }
                           },
                           height: screensize.height * 0.065,
                           color: Color.fromARGB(255, 91, 171, 94),
@@ -510,7 +619,31 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
-        "Authorization": "${token[0]["appToken"]}"
+        "Authorization": "Bearer ${token[0]["appToken"]}"
+      },
+    );
+    if (response1.statusCode == 200) {
+      print('successful');
+      mapresponse = json.decode(response1.body);
+      print(response1.body);
+    } else {
+      print(response1.body);
+      print('fetch unsuccessful');
+    }
+  }
+
+  Future _DeleteGSTbillapi() async {
+    Map mapresponse;
+    http.Response response1;
+
+    var token = await DatabaseHelper.instance.getbookkeepermodel();
+    print("Non GST bill api request is sent");
+    response1 = await http.delete(
+      Uri.parse("http://192.168.0.101:8082/nonGstBill/13"),
+      headers: {
+        "accept": "*/*",
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${token[0]["appToken"]}"
       },
     );
     if (response1.statusCode == 200) {
@@ -577,6 +710,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
   }
 
   uploadNonGSTimage() async {
+    var token = await DatabaseHelper.instance.getbookkeepermodel();
     var stream = http.ByteStream(NonGSTimage!.openRead());
     stream.cast();
     var length = await NonGSTimage!.length();
@@ -585,6 +719,8 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
 
     Map<String, String> headers = {
       "Accept": "*/*",
+      "Content-Type": "application/json",
+      "Authorization": "Bearer ${token[0]["appToken"]}"
     };
     String filename = NonGSTimage!.path.split("/").last;
     var multiport = new http.MultipartFile("billImagePath", stream, length,
@@ -599,11 +735,12 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       print("Image Uploaded");
       var res = await http.Response.fromStream(response);
       var val = json.decode(res.body);
-      var modeofpayments = await DatabaseHelper.instance.getmodeofpayments();
+      var modeofpayments = await DatabaseHelper.instance.getGSTmodeofpayments();
+      
       editNonGSTbillapi(
-          NonGSTvendorid,
+          NonGSTvendorid == null ? 0 : NonGSTvendorid,
           Non_GSTvendorctrl.text,
-          NonGSTitemid,
+          NonGSTitemid == null ? 0 : NonGSTitemid,
           Non_GSTitemctrl.text,
           instrument_referance_numberctrl.text,
           "${NonGSTdate.year}-${NonGSTdate.month}-${NonGSTdate.day}",
@@ -644,7 +781,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       String unit,
       int instrumentTotalValue,
       String billImgaePath,
-      List modeofPayments) async {
+      var modeofPayments) async {
     var token = await DatabaseHelper.instance.getbookkeepermodel();
     var data = json.encode({
       "vendorId": vendorid,
@@ -674,13 +811,13 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
             headers: {
               "accept": "*/*",
               "Content-Type": "application/json",
-              "Authorization": "${token[0]["appToken"]}"
+              "Authorization": "Bearer ${token[0]["appToken"]}"
             },
             body: data);
     if (response.statusCode == 200) {
       mapresponse = json.decode(response.body);
       print(response.body);
-      await DatabaseHelper.instance.removemodeofpayment();
+      await DatabaseHelper.instance.removenonGSTmodeofpayment();
       Get.to(homeScreen());
     } else {
       print("login failed");
@@ -730,93 +867,108 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
   TextEditingController Non_GSTvendorctrl = TextEditingController();
   TextEditingController Non_GSTitemctrl = TextEditingController();
   forexample(List option, bool enable, bool names) {
-    return Container(
-        child: TypeAheadField(
-      // noItemsFoundBuilder: (context) => const SizedBox(
-      //   height: 50,
-      //   child: Center(
-      //     child: Text(names==true?"No Vendor Found" :'No Item Found'),
-      //   ),
-      // ),
-      suggestionsBoxDecoration: const SuggestionsBoxDecoration(
-        color: Colors.white,
-        elevation: 4.0,
-      ),
-      suggestionsCallback: (Value) async {
-        var search = option;
-        print(search);
-        return search;
-      },
-      textFieldConfiguration: TextFieldConfiguration(
-          enabled: enable,
-          controller: names == true ? Non_GSTvendorctrl : Non_GSTitemctrl,
-          decoration: InputDecoration(
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(
-                width: 2,
-                color: Color.fromARGB(255, 29, 134, 182),
-              ),
+    return ValueListenableBuilder(
+      valueListenable:
+          names == true ? NonGSTvendorslistresponse! : _NonGSTitemlistresponse!,
+      builder: (BuildContext context, dynamic value, Widget? child) {
+        return Container(
+            child: TypeAheadField(
+          noItemsFoundBuilder: (context) => const SizedBox(
+            height: 50,
+            child: Center(
+              child: Text('No Item Found'),
             ),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(
-              10.0,
-            )),
-            disabledBorder: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(5.0),
+          ),
+          suggestionsBoxDecoration: const SuggestionsBoxDecoration(
+            color: Colors.white,
+            elevation: 4.0,
+          ),
+          suggestionsCallback: (Value) async {
+            var search = names == true
+                ? NonGSTvendorslistresponse!.value
+                : _NonGSTitemlistresponse!.value;
+            print(search);
+            return search;
+          },
+          textFieldConfiguration: TextFieldConfiguration(
+              onChanged: (value) {
+                names == true ? _NonGSTvendorapi() : _NonGSTitemapi();
+                setState(() {
+                  names == true ? NonGSTvendorid = null : NonGSTitemid = null;
+                });
+                print("id's changed to ZERO");
+              },
+              enabled: enable,
+              controller: names == true ? Non_GSTvendorctrl : Non_GSTitemctrl,
+              decoration: InputDecoration(
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: Color.fromARGB(255, 29, 134, 182),
+                  ),
                 ),
-                borderSide: BorderSide(
-                  width: 2,
-                  color: Color.fromARGB(255, 216, 216, 216),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                  10.0,
                 )),
-            enabledBorder: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(5.0),
-                ),
-                borderSide: BorderSide(
-                  width: 2,
-                  color: Color.fromARGB(255, 216, 216, 216),
-                )),
-            contentPadding: const EdgeInsets.only(top: 4, left: 10),
-          )),
-      debounceDuration: const Duration(seconds: 1),
-      itemBuilder: (context, suggestion) {
-        // print(sugg);
-        return Row(
-          children: [
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  names == true
-                      ? suggestion['vendorName'].toString()
-                      : suggestion['itemName'].toString(),
-                  maxLines: 1,
-                  style: TextStyle(color: Colors.black),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            )
-          ],
-        );
-      },
-      onSuggestionSelected: (suggestion) async {
-        // String sugg = suggestion.toString();
-        names == true
-            ? Non_GSTvendorctrl.text = suggestion['vendorName'].toString()
-            : Non_GSTitemctrl.text = suggestion['itemName'].toString();
-        String bata;
-        names == true
-            ? bata = suggestion['vendorName'].toString()
-            : bata = suggestion['itemName'].toString();
-        setState(() {
-          names == true
-              ? NonGSTvendorid = suggestion["vendorId"]
-              : NonGSTitemid = suggestion["itemId"];
-        });
+                disabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(5.0),
+                    ),
+                    borderSide: BorderSide(
+                      width: 2,
+                      color: Color.fromARGB(255, 216, 216, 216),
+                    )),
+                enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(5.0),
+                    ),
+                    borderSide: BorderSide(
+                      width: 2,
+                      color: Color.fromARGB(255, 216, 216, 216),
+                    )),
+                contentPadding: const EdgeInsets.only(top: 4, left: 10),
+              )),
+          debounceDuration: const Duration(seconds: 1),
+          itemBuilder: (context, suggestion) {
+            // print(sugg);
+            return Row(
+              children: [
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      names == true
+                          ? suggestion['vendorName'].toString()
+                          : suggestion['itemName'].toString(),
+                      maxLines: 1,
+                      style: TextStyle(color: Colors.black),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+              ],
+            );
+          },
+          onSuggestionSelected: (suggestion) async {
+            // String sugg = suggestion.toString();
+            names == true
+                ? Non_GSTvendorctrl.text = suggestion['vendorName'].toString()
+                : Non_GSTitemctrl.text = suggestion['itemName'].toString();
+            String bata;
+            names == true
+                ? bata = suggestion['vendorName'].toString()
+                : bata = suggestion['itemName'].toString();
+            setState(() {
+              names == true
+                  ? NonGSTvendorid = suggestion["vendorId"]
+                  : NonGSTitemid = suggestion["itemId"];
+            });
 
-        print("bata=$bata");
+            print("bata=$bata");
+          },
+        ));
       },
-    ));
+    );
   }
 }

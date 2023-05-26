@@ -43,14 +43,14 @@ class _addinvoicepaymentModeScreenState
     http.Response response1;
     var token = await DatabaseHelper.instance.getbookkeepermodel();
     var listofmodeofpayments =
-        await DatabaseHelper.instance.getmodeofpayments();
+        await DatabaseHelper.instance.getGSTmodeofpayments();
 
     response1 = await http.get(
       Uri.parse("http://192.168.0.101:8082/paymentMethods"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
-        "Authorization": "${token[0]["appToken"]}"
+        "Authorization": "Bearer ${token[0]["appToken"]}"
       },
     );
     if (response1.statusCode == 200) {
@@ -69,7 +69,7 @@ class _addinvoicepaymentModeScreenState
             for (int n = 0; n < modeofpayments.length; n++) {
               // print("final mode of payment");
               if (listresponse![index]["paymentMethodId"] ==
-                  modeofpayments[n]['modeOfPaymentId']) {
+                  modeofpayments[n]['modeOfPaymentId'] as int) {
                 print("final mode of payment");
                 selectedval[index].value = true;
 
@@ -264,11 +264,12 @@ class _addinvoicepaymentModeScreenState
                     onPressed: () async {
                       if (val[1] == true) {
                         if (remainingamount.value == 0) {
-                          await DatabaseHelper.instance.removemodeofpayment();
+                          await DatabaseHelper.instance
+                              .removeGSTmodeofpayment();
                           for (int n = 0; n < selectedval.length; n++) {
                             if (selectedval[n].value == true) {
-                              await DatabaseHelper.instance.addmodeofpayment(
-                                  Modeofpayment(
+                              await DatabaseHelper.instance.addGSTmodeofpayment(
+                                  Gstmodeofpayment(
                                       modeOfPaymentId: selectedval[n].id,
                                       paymentValue: int.parse(selectedval[n]
                                                   .numberctrl
@@ -279,16 +280,21 @@ class _addinvoicepaymentModeScreenState
                                           : selectedval[n].numberctrl.text)));
                             }
                           }
+                          var data = await DatabaseHelper.instance
+                              .getGSTmodeofpayments();
+                          var result = json.encode(data);
+                          print(result);
 
                           Get.back();
                         }
                       } else {
                         if (remainingamount.value == 0) {
-                          await DatabaseHelper.instance.removemodeofpayment();
+                          await DatabaseHelper.instance
+                              .removenonGSTmodeofpayment();
                           for (int n = 0; n < selectedval.length; n++) {
                             if (selectedval[n].value == true) {
-                              await DatabaseHelper.instance.addmodeofpayment(
-                                  Modeofpayment(
+                              await DatabaseHelper.instance
+                                  .addNonGSTmodeofpayment(Nongstmodeofpayment(
                                       modeOfPaymentId: selectedval[n].id,
                                       paymentValue: int.parse(selectedval[n]
                                                   .numberctrl
