@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, sort_child_properties_last
+// ignore_for_file: prefer_const_constructors, sort_child_properties_last, unnecessary_string_interpolations
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -9,7 +9,9 @@ import 'package:invoiced/edit_Non_GST_Invoice.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:invoiced/databasehelper.dart';
+import 'package:invoiced/itemscreen.dart';
 import 'package:invoiced/profile.dart';
+import 'package:invoiced/vendorscreen.dart';
 
 import 'edit_GST_invoice.dart';
 
@@ -60,17 +62,64 @@ class _homeScreenState extends State<homeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          automaticallyImplyLeading: false,
           title: Text("Invoiced"),
           centerTitle: true,
           backgroundColor: Color.fromARGB(255, 29, 134, 182),
+        ),
+        drawer: Drawer(
+          width: 220,
+          child: ListView(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 220,
+                    height: 100,
+                    child: DrawerHeader(
+                        decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 29, 134, 182)),
+                        child: Image.asset(
+                          "Images/Colorlogo-nobackground-1.png",
+                          height: 20,
+                          width: 20,
+                        )),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextButton(
+                            onPressed: () {
+                              Get.to(vendorsScreen());
+                            },
+                            child: Text(
+                              "Vendors",
+                              style: TextStyle(fontSize: 20),
+                            )),
+                        TextButton(
+                            onPressed: () {
+                              Get.to(items());
+                            },
+                            child:
+                                Text("Items", style: TextStyle(fontSize: 20)))
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         body: Container(
           child: Center(child: home()),
         ),
         floatingActionButton: FloatingActionButton.extended(
             backgroundColor: Color.fromARGB(255, 91, 171, 94),
-            onPressed: () {
+            onPressed: () async {
+              await DatabaseHelper.instance.removeGSTmodeofpayment();
+              await DatabaseHelper.instance.removenonGSTmodeofpayment();
               Get.to(addInvoiceScreen());
             },
             icon: Icon(Icons.add),
@@ -81,8 +130,6 @@ class _homeScreenState extends State<homeScreen> {
     return ListView.builder(
         itemCount: listresponse == null ? 1 : listresponse!.length,
         itemBuilder: (context, index) {
-          var date = DateTime.fromMicrosecondsSinceEpoch(
-              listresponse![index]['billCreatedOn']);
           return listresponse == null
               ? Container(
                   height: 300,
@@ -92,9 +139,14 @@ class _homeScreenState extends State<homeScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
-                      Text(date.toString()),
+                      Text(
+                          "${DateTime.fromMicrosecondsSinceEpoch(listresponse![index]['billCreatedOn']).toString()}"),
                       ListTile(
-                        onTap: () {
+                        onTap: () async {
+                          await DatabaseHelper.instance
+                              .removeGSTmodeofpayment();
+                          await DatabaseHelper.instance
+                              .removenonGSTmodeofpayment();
                           Get.to(editGSTInvoiceScreen(),
                               arguments: listresponse![index]['billId']);
                         },
@@ -102,7 +154,7 @@ class _homeScreenState extends State<homeScreen> {
                             borderRadius: BorderRadius.circular(5),
                             side: BorderSide(width: 2)),
                         leading: Text(
-                            "${listresponse![index]['vendorId']}-${listresponse![index]['billId']}"),
+                            "${listresponse![index]['vendorName']}-${listresponse![index]['itemName']}"),
                         trailing:
                             Text("${listresponse![index]['billCreatedOn']}"),
                       ),

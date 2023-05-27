@@ -10,6 +10,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:invoiced/addinvoice_payment_mode.dart';
+import 'package:invoiced/pojoclass.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
@@ -76,6 +77,16 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       instrumentunitctrl.text = listresponse![0]["unit"].toString();
       instrumenttotalvaluectrl.text =
           listresponse![0]["instrumentTotalValue"].toString();
+      if (listresponse![0]["modeOfPayments"] != null) {
+        for (int n = 0; n < listresponse![0]["modeOfPayments"].length; n++) {
+          await DatabaseHelper.instance.addNonGSTmodeofpayment(
+              Nongstmodeofpayment(
+                  modeOfPaymentId: listresponse![0]["modeOfPayments"][n]
+                      ['modeOfPaymentId'],
+                  paymentValue: listresponse![0]["modeOfPayments"][n]
+                      ['paymentValue']));
+        }
+      }
 
       print("Non GST bill = $listresponse");
     } else {
@@ -462,7 +473,6 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
                           onPressed: () {
                             Get.to(editinvoicepaymentModeScreen(), arguments: [
                               int.parse(instrumenttotalvaluectrl.text),
-                              listresponse![0]['modeOfPayments'],
                               false
                             ]);
                           },
@@ -736,7 +746,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       var res = await http.Response.fromStream(response);
       var val = json.decode(res.body);
       var modeofpayments = await DatabaseHelper.instance.getGSTmodeofpayments();
-      
+
       editNonGSTbillapi(
           NonGSTvendorid == null ? 0 : NonGSTvendorid,
           Non_GSTvendorctrl.text,

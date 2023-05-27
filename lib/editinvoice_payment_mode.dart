@@ -62,9 +62,40 @@ class _editinvoicepaymentModeScreenState
       print('successful');
       mapresponse = json.decode(response1.body);
       print(response1.body);
-      setState(() {
+     setState(() {
         listresponse = mapresponse['message'];
         modeofpayments = listofmodeofpayments;
+        if (modeofpayments != []) {
+          // print("final mode of payment");
+          for (int index = 0; index < listresponse!.length; index++) {
+            selectedval.add(select(
+                value: false, id: listresponse![index]["paymentMethodId"]));
+
+            for (int n = 0; n < modeofpayments.length; n++) {
+              // print("final mode of payment");
+              if (listresponse![index]["paymentMethodId"] ==
+                  modeofpayments[n]['modeOfPaymentId'] as int) {
+                print("final mode of payment");
+                selectedval[index].value = true;
+
+                selectedval[index].numberctrl.text =
+                    modeofpayments[n]['paymentValue'].toString();
+              }
+            }
+          }
+        }
+        int remaining = 0;
+        for (int n = 0; n < selectedval.length; n++) {
+          String num = selectedval[n].numberctrl.text == ""
+              ? "0"
+              : selectedval[n].numberctrl.text;
+          setState(() {
+            remaining = remaining + int.parse(num);
+          });
+        }
+        setState(() {
+          remainingamount.value = (val[0]) - remaining;
+        });
       });
 
       print("listresponse= $listresponse");
@@ -108,21 +139,8 @@ class _editinvoicepaymentModeScreenState
                     shrinkWrap: true,
                     itemCount: listresponse == null ? 1 : listresponse!.length,
                     itemBuilder: (context, index) {
-                      selectedval.add(select(
-                          value: false,
-                          id: listresponse![index]["paymentMethodId"]));
 
-                      if (modeofpayments != null) {
-                        for (int n = 0; n < val[1].length; n++) {
-                          if (listresponse![index]["paymentMethodId"] ==
-                              modeofpayments[n]['paymentMethodId']) {
-                            setState(() {
-                              selectedval[index].numberctrl.text =
-                                  modeofpayments[n]['paymentValue'].toString();
-                            });
-                          }
-                        }
-                      }
+                    
 
                       return listresponse == null
                           ? Container(

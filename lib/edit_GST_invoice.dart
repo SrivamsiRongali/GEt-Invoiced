@@ -9,6 +9,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:invoiced/addinvoice_payment_mode.dart';
+import 'package:invoiced/pojoclass.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
@@ -57,6 +58,9 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
       print(response1.body);
       setState(() {
         listresponse = mapresponse['message'];
+        GSTvendorid = listresponse![0]["vendorId"];
+        GSTitemid = listresponse![0]["itemId"];
+        stateid = listresponse![0]["stateId"];
       });
       var date = DateTime.fromMillisecondsSinceEpoch(
           listresponse![0]["dateOfInvoice"]);
@@ -79,7 +83,15 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
       SGSTamountctrl.text = listresponse![0]["sgstAmount"].toString();
       CGSTratectrl.text = listresponse![0]["cgstRate"].toString();
       CGSTamountctrl.text = listresponse![0]["cgstAmount"].toString();
-
+      if (listresponse![0]["modeOfPayments"] != null) {
+        for (int n = 0; n < listresponse![0]["modeOfPayments"].length; n++) {
+          await DatabaseHelper.instance.addGSTmodeofpayment(Gstmodeofpayment(
+              modeOfPaymentId: listresponse![0]["modeOfPayments"][n]
+                  ['modeOfPaymentId'],
+              paymentValue: listresponse![0]["modeOfPayments"][n]
+                  ['paymentValue']));
+        }
+      }
       print("GST bill = $listresponse");
     } else {
       print(response1.body);
@@ -733,7 +745,6 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
                           onPressed: () {
                             Get.to(editinvoicepaymentModeScreen(), arguments: [
                               int.parse(invoicevaluectrl.text),
-                              listresponse![0]['modeOfPayments'],
                               true
                             ]);
                           },
