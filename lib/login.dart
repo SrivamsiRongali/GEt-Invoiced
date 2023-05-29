@@ -116,7 +116,7 @@ class _loginScreenState extends State<loginScreen> {
   TextEditingController emailctrl = TextEditingController();
   TextEditingController passwordctrl = TextEditingController();
 
-  FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+  // FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
 
   void initDynamicLinks() async {
     final PendingDynamicLinkData? initallink =
@@ -124,12 +124,12 @@ class _loginScreenState extends State<loginScreen> {
     // dynamicLinks.onLink.listen((dynamicLinkdata) {});
 
     if (initallink != null) {
-      //  final Uri dynamiclink = initallink.link;
-      // List<String> sepreatedLink = [];
+      final Uri dynamiclink = initallink.link;
+      List<String> sepreatedLink = [];
 
-      // /// osama.link.page/Hellow --> osama.link.page and Hellow
-      // sepreatedLink.addAll(dynamiclink.path.split('/'));
-      // print("The Token that i'm interesed in is ${sepreatedLink[1]}");
+      /// osama.link.page/Hellow --> osama.link.page and Hellow
+      sepreatedLink.addAll(dynamiclink.path.split('/'));
+      print("The Token that i'm interesed in is ${sepreatedLink[1]}");
 
       Get.to(registration_Screen());
     } else {

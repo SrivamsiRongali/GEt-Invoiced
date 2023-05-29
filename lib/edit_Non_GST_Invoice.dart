@@ -41,6 +41,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
     super.initState();
   }
 
+  var billid = Get.arguments;
   List? listresponse;
   Future _NonGSTbillapi() async {
     Map mapresponse;
@@ -49,7 +50,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
     var token = await DatabaseHelper.instance.getbookkeepermodel();
     print("Non GST bill api request is sent");
     response1 = await http.get(
-      Uri.parse("http://192.168.0.101:8082/nonGstBill/13"),
+      Uri.parse("http://192.168.0.101:8082/nonGstBill/$billid"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
@@ -63,7 +64,8 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       setState(() {
         listresponse = mapresponse['message'];
       });
-      DateTime date = DateTime.parse(listresponse![0]['instrumentDate']);
+      var date = DateTime.fromMillisecondsSinceEpoch(
+          listresponse![0]["instrumentDate"]);
       Non_GSTvendorctrl.text = listresponse![0]["vendorId"].toString();
       Non_GSTitemctrl.text = listresponse![0]["itemId"].toString();
       instrument_referance_numberctrl.text =
@@ -625,31 +627,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
     var token = await DatabaseHelper.instance.getbookkeepermodel();
     print("Non GST bill api request is sent");
     response1 = await http.delete(
-      Uri.parse("http://192.168.0.101:8082/nonGstBill/13"),
-      headers: {
-        "accept": "*/*",
-        "Content-Type": "application/json",
-        "Authorization": "Bearer ${token[0]["appToken"]}"
-      },
-    );
-    if (response1.statusCode == 200) {
-      print('successful');
-      mapresponse = json.decode(response1.body);
-      print(response1.body);
-    } else {
-      print(response1.body);
-      print('fetch unsuccessful');
-    }
-  }
-
-  Future _DeleteGSTbillapi() async {
-    Map mapresponse;
-    http.Response response1;
-
-    var token = await DatabaseHelper.instance.getbookkeepermodel();
-    print("Non GST bill api request is sent");
-    response1 = await http.delete(
-      Uri.parse("http://192.168.0.101:8082/nonGstBill/13"),
+      Uri.parse("http://192.168.0.101:8082/nonGstBill/$billid"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
@@ -816,14 +794,14 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
     Map mapresponse;
     print("NonGSt edit api is hit");
 
-    http.Response response =
-        await http.put(Uri.parse("http://192.168.0.101:8082/nonGstBill/13"),
-            headers: {
-              "accept": "*/*",
-              "Content-Type": "application/json",
-              "Authorization": "Bearer ${token[0]["appToken"]}"
-            },
-            body: data);
+    http.Response response = await http.put(
+        Uri.parse("http://192.168.0.101:8082/nonGstBill/$billid"),
+        headers: {
+          "accept": "*/*",
+          "Content-Type": "application/json",
+          "Authorization": "Bearer ${token[0]["appToken"]}"
+        },
+        body: data);
     if (response.statusCode == 200) {
       mapresponse = json.decode(response.body);
       print(response.body);

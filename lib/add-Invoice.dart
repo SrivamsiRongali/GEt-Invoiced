@@ -412,24 +412,25 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
     var request = new http.MultipartRequest(
         "POST", Uri.parse("http://192.168.0.101:8082/addBillImage"));
 
-    Map<String, String> headers = {
-      "Accept": "*/*",
-      "Content-Type": "application/json",
-      "Authorization": "Bearer ${token[0]["appToken"]}"
-    };
+    // Map<String, String> headers = {
+    //   "Accept": "*/*",
+    //   "Content-Type": "application/json",
+    //   "Authorization": "Bearer ${token[0]["appToken"]}"
+    // };
     String filename = NonGSTimage!.path.split("/").last;
     var multiport = new http.MultipartFile("billImagePath", stream, length,
         filename: filename);
     request.files.add(multiport);
 
     // request.headers[headers];
-    // request.headers['accept'] = '*/*';
+    request.headers["Authorization"] = "Bearer ${token[0]["appToken"]}";
     // request.headers['Content-Type'] = "application/json";
     var response = await request.send();
     if (response.statusCode == 200) {
       print("Image Uploaded");
       var res = await http.Response.fromStream(response);
       var val = json.decode(res.body);
+      print(val);
       var modeofpayments =
           await DatabaseHelper.instance.getNonGSTmodeofpayments();
       addNonGSTbillapi(

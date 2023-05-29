@@ -65,6 +65,13 @@ class _homeScreenState extends State<homeScreen> {
           title: Text("Invoiced"),
           centerTitle: true,
           backgroundColor: Color.fromARGB(255, 29, 134, 182),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Get.to(profilescreen());
+                },
+                icon: Icon(Icons.person))
+          ],
         ),
         drawer: Drawer(
           width: 220,
@@ -138,25 +145,32 @@ class _homeScreenState extends State<homeScreen> {
               : Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                          "${DateTime.fromMicrosecondsSinceEpoch(listresponse![index]['billCreatedOn']).toString()}"),
+                          "${DateTime.fromMicrosecondsSinceEpoch(listresponse![index]['billCreatedOn']).day}/${DateTime.fromMicrosecondsSinceEpoch(listresponse![index]['billCreatedOn']).month}/${DateTime.fromMicrosecondsSinceEpoch(listresponse![index]['billCreatedOn']).year}"),
                       ListTile(
                         onTap: () async {
                           await DatabaseHelper.instance
                               .removeGSTmodeofpayment();
                           await DatabaseHelper.instance
                               .removenonGSTmodeofpayment();
-                          Get.to(editGSTInvoiceScreen(),
-                              arguments: listresponse![index]['billId']);
+                          if (listresponse![index]['billType'].toString() ==
+                              "gst") {
+                            Get.to(editGSTInvoiceScreen(),
+                                arguments: listresponse![index]['billId']);
+                          } else {
+                            Get.to(editNonGSTInvoiceScreen(),
+                                arguments: listresponse![index]['billId']);
+                          }
                         },
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
                             side: BorderSide(width: 2)),
-                        leading: Text(
+                        title: Text(
                             "${listresponse![index]['vendorName']}-${listresponse![index]['itemName']}"),
-                        trailing:
-                            Text("${listresponse![index]['billCreatedOn']}"),
+                        trailing: Text(
+                            "Amount=${listresponse![index]["amountSpent"]}"),
                       ),
                     ],
                   ),

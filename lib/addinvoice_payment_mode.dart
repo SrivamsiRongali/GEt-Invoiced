@@ -42,8 +42,9 @@ class _addinvoicepaymentModeScreenState
     Map mapresponse;
     http.Response response1;
     var token = await DatabaseHelper.instance.getbookkeepermodel();
-    var listofmodeofpayments =
-        await DatabaseHelper.instance.getGSTmodeofpayments();
+    var listofmodeofpayments = val[1] == null
+        ? await DatabaseHelper.instance.getGSTmodeofpayments()
+        : await DatabaseHelper.instance.getNonGSTmodeofpayments();
 
     response1 = await http.get(
       Uri.parse("http://192.168.0.101:8082/paymentMethods"),
