@@ -5,7 +5,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:invoiced/edit_Non_GST_Invoice.dart';
+import 'add-Invoice.dart';
 import 'databasehelper.dart';
+import 'edit_GST_invoice.dart';
+import 'home.dart';
 
 class vendorsScreen extends StatefulWidget {
   const vendorsScreen({super.key});
@@ -63,6 +67,7 @@ class _vendorsScreenState extends State<vendorsScreen> {
     }
   }
 
+  var val = Get.arguments;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +98,46 @@ class _vendorsScreenState extends State<vendorsScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   TextButton(
-                                    onPressed: () async {},
+                                    onPressed: () async {
+                                      if (val != null) {
+                                        val[0] == true
+                                            ? val[1] == true
+                                                ? addGSTvendorid.value =
+                                                    vendorslistresponse![index]
+                                                        ['vendorId']
+                                                : addNonGSTvendorid.value =
+                                                    vendorslistresponse![index]
+                                                        ['vendorId']
+                                            : val[1] == true
+                                                ? editGSTvendorid.value =
+                                                    vendorslistresponse![index]
+                                                        ['vendorId']
+                                                : editNonGSTvendorid.value =
+                                                    vendorslistresponse![index]
+                                                        ['vendorId'];
+                                        val[0] == true
+                                            ? val[1] == true
+                                                ? addGSTvendor.value =
+                                                    vendorslistresponse![index]
+                                                        ['vendorName']
+                                                : addNon_GSTvendor.value =
+                                                    vendorslistresponse![index]
+                                                        ['vendorName']
+                                            : val[1] == true
+                                                ? editGSTvendor.value =
+                                                    vendorslistresponse![index]
+                                                        ['vendorName']
+                                                : editNon_GSTvendor.value =
+                                                    vendorslistresponse![index]
+                                                            ['vendorName']
+                                                        .toString();
+                                        print(editNon_GSTvendor.value);
+                                        print(
+                                            "${editGSTvendorid.value}${vendorslistresponse![index]['vendorId']}");
+
+                                        Get.back();
+                                      }
+                                    },
                                     child: Text(vendorslistresponse![index]
                                         ['vendorName']),
                                   ),
@@ -273,7 +317,90 @@ class _vendorsScreenState extends State<vendorsScreen> {
                                             },
                                             icon: Icon(Icons.edit_outlined)),
                                         IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Get.defaultDialog(
+                                                  title: "",
+                                                  content: Text(
+                                                      "Are you sure you want to delete"),
+                                                  actions: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 10,
+                                                              right: 10,
+                                                              bottom: 10),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          MaterialButton(
+                                                            onPressed:
+                                                                () async {
+                                                              deletevendorapi(
+                                                                  vendorslistresponse![
+                                                                          index]
+                                                                      [
+                                                                      'itemId']);
+                                                              this.setState(
+                                                                  () {});
+                                                            },
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    91,
+                                                                    171,
+                                                                    94),
+                                                            child: Row(
+                                                              children: [
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          8.0),
+                                                                  child: Text(
+                                                                    "Yes",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          MaterialButton(
+                                                            onPressed: () {
+                                                              Get.back();
+                                                            },
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    91,
+                                                                    171,
+                                                                    94),
+                                                            child: Row(
+                                                              children: [
+                                                                Padding(
+                                                                  padding:
+                                                                      EdgeInsets
+                                                                          .all(
+                                                                              8.0),
+                                                                  child: Text(
+                                                                    "No",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    )
+                                                  ]);
+                                              this.setState(() {});
+                                            },
                                             icon: Icon(
                                               Icons.delete,
                                               color: Colors.red,
@@ -410,6 +537,7 @@ class _vendorsScreenState extends State<vendorsScreen> {
       print(response.body);
       mapresponse = json.decode(response.body);
       Get.back();
+      _vendorapi();
       this.setState(() {});
     } else {
       print("login failed");
@@ -443,6 +571,33 @@ class _vendorsScreenState extends State<vendorsScreen> {
       mapresponse = json.decode(response.body);
       print(response.body);
       Get.back();
+      _vendorapi();
+      this.setState(() {});
+    } else {
+      print("login failed");
+    }
+  }
+
+  deletevendorapi(int vendorid) async {
+    var token = await DatabaseHelper.instance.getbookkeepermodel();
+
+    print("api is hit");
+    Map mapresponse;
+
+    http.Response response = await http.delete(
+      Uri.parse("http://192.168.0.101:8082/vendor/$vendorid"),
+      headers: {
+        "accept": "*/*",
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${token[0]["appToken"]}"
+      },
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      print(response.body);
+      mapresponse = json.decode(response.body);
+      Get.back();
+      _vendorapi();
       this.setState(() {});
     } else {
       print("login failed");

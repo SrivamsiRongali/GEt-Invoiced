@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_null_comparison
+// ignore_for_file: prefer_const_constructors, unnecessary_null_comparison, prefer_is_empty
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,9 +23,16 @@ class addinvoicepaymentModeScreen extends StatefulWidget {
 class select {
   bool value;
   int id;
+  int billPaymentId;
+  int updateForBillPayment;
+
   TextEditingController numberctrl = TextEditingController();
 
-  select({required this.value, required this.id});
+  select(
+      {required this.value,
+      required this.id,
+      required this.billPaymentId,
+      required this.updateForBillPayment});
 }
 
 class _addinvoicepaymentModeScreenState
@@ -65,7 +72,10 @@ class _addinvoicepaymentModeScreenState
           // print("final mode of payment");
           for (int index = 0; index < listresponse!.length; index++) {
             selectedval.add(select(
-                value: false, id: listresponse![index]["paymentMethodId"]));
+                value: false,
+                id: listresponse![index]["paymentMethodId"],
+                billPaymentId: 0,
+                updateForBillPayment: 0));
 
             for (int n = 0; n < modeofpayments.length; n++) {
               // print("final mode of payment");
@@ -269,16 +279,16 @@ class _addinvoicepaymentModeScreenState
                               .removeGSTmodeofpayment();
                           for (int n = 0; n < selectedval.length; n++) {
                             if (selectedval[n].value == true) {
-                              await DatabaseHelper.instance.addGSTmodeofpayment(
-                                  Gstmodeofpayment(
-                                      modeOfPaymentId: selectedval[n].id,
-                                      paymentValue: int.parse(selectedval[n]
-                                                  .numberctrl
-                                                  .text
-                                                  .length ==
-                                              0
-                                          ? "0"
-                                          : selectedval[n].numberctrl.text)));
+                              await DatabaseHelper.instance
+                                  .addGSTmodeofpayment(Gstmodeofpayment(
+                                updateForBillPayment: 0,
+                                billPaymentId: 0,
+                                modeOfPaymentId: selectedval[n].id,
+                                paymentValue: int.parse(
+                                    selectedval[n].numberctrl.text.isEmpty
+                                        ? "0"
+                                        : selectedval[n].numberctrl.text),
+                              ));
                             }
                           }
                           var data = await DatabaseHelper.instance
@@ -303,7 +313,9 @@ class _addinvoicepaymentModeScreenState
                                                   .length ==
                                               0
                                           ? "0"
-                                          : selectedval[n].numberctrl.text)));
+                                          : selectedval[n].numberctrl.text),
+                                      billPaymentId: 0,
+                                      updateForBillPayment: 0));
                             }
                           }
 

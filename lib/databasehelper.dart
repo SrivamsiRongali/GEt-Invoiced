@@ -36,10 +36,12 @@ rolename STRING,
 baseurl STRING
 )''');
     print('table created');
+    await db
+        .execute('''CREATE TABLE gstmodeofpayment( updateForBillPayment INTEGER,
+  billPaymentId INTEGER, modeOfPaymentId INTEGER,paymentValue INTEGER)''');
     await db.execute(
-        '''CREATE TABLE gstmodeofpayment(modeOfPaymentId INTEGER,paymentValue INTEGER)''');
-    await db.execute(
-        '''CREATE TABLE nongstmodeofpayment(modeOfPaymentId INTEGER,paymentValue INTEGER)''');
+        '''CREATE TABLE nongstmodeofpayment( updateForBillPayment INTEGER,
+  billPaymentId INTEGER,modeOfPaymentId INTEGER,paymentValue INTEGER)''');
   }
 
   Future<List<Map<String, Object?>>> getbookkeepermodel() async {
@@ -86,6 +88,32 @@ baseurl STRING
         await db.query('gstmodeofpayment', orderBy: 'modeOfPaymentId');
 
     return results;
+  }
+
+  Future updateGSTmodeofpayment(int updateForBillPayment, int billPaymentId,
+      int modeOfPaymentId, int paymentValue) async {
+    Database db = await instance.database;
+    var result = await db.rawQuery('''UPDATE  gstmodeofpayment
+    Set updateForBillPayment = $updateForBillPayment,
+        modeOfPaymentId = $modeOfPaymentId,
+        paymentValue = $paymentValue 
+        where billPaymentId=$billPaymentId
+      ''');
+
+    return result;
+  }
+
+  Future updateNonGSTmodeofpayment(int updateForBillPayment, int billPaymentId,
+      int modeOfPaymentId, int paymentValue) async {
+    Database db = await instance.database;
+    var result = await db.rawQuery('''UPDATE  nongstmodeofpayment
+    Set updateForBillPayment= $updateForBillPayment,
+        modeOfPaymentId=$modeOfPaymentId,
+        paymentValue=$paymentValue 
+        where billPaymentId=$billPaymentId
+      ''');
+
+    return result;
   }
 
   Future<int> addGSTmodeofpayment(Gstmodeofpayment gstmodeofpayment) async {

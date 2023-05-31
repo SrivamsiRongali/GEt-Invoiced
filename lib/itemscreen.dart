@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'databasehelper.dart';
+import 'home.dart';
 
 class items extends StatefulWidget {
   const items({super.key});
@@ -21,15 +22,15 @@ class _itemsState extends State<items> {
     itemlist = _itemapi();
   }
 
-  Future<List?>? itemlist;
+  Future? itemlist;
   List? itemlistresponse;
 
-  Future<List?> _itemapi() async {
+  Future _itemapi() async {
     Map mapresponse;
     http.Response response1;
 
     var token = await DatabaseHelper.instance.getbookkeepermodel();
-    print("vendor api request is sent");
+    print("items api request is sent");
     response1 = await http.get(
       Uri.parse("http://192.168.0.101:8082/items"),
       headers: {
@@ -43,16 +44,11 @@ class _itemsState extends State<items> {
       mapresponse = json.decode(response1.body);
       print(response1.body);
       itemlistresponse = mapresponse['message'];
-      if (itemlistresponse == []) {
-        print("vendor response is null");
-        setState(() {
-          itemlistresponse = [];
-        });
-      } else {
-        setState(() {
-          itemlistresponse = mapresponse['message'];
-        });
-      }
+
+      setState(() {
+        itemlistresponse = mapresponse['message'];
+      });
+
       print("itemlistresponse= ${itemlistresponse}");
       return itemlistresponse;
     } else {
@@ -60,6 +56,8 @@ class _itemsState extends State<items> {
       print('fetch unsuccessful');
     }
   }
+
+  var val = Get.arguments;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +87,44 @@ class _itemsState extends State<items> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 TextButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      val[0] == true
+                                          ? val[1] == true
+                                              ? addGSTitemid.value =
+                                                  itemlistresponse![index]
+                                                      ['itemId']
+                                              : addNonGSTitemid.value =
+                                                  itemlistresponse![index]
+                                                      ['itemId']
+                                          : val[1] == true
+                                              ? editGSTitemid.value =
+                                                  itemlistresponse![index]
+                                                      ['itemId']
+                                              : editNonGSTitemid.value =
+                                                  itemlistresponse![index]
+                                                      ['itemId'];
+                                      val[0] == true
+                                          ? val[1] == true
+                                              ? addGSTitem.value =
+                                                  itemlistresponse![index]
+                                                      ['itemName']
+                                              : addNon_GSTitem.value =
+                                                  itemlistresponse![index]
+                                                      ['itemName']
+                                          : val[1] == true
+                                              ? editGSTitem.value =
+                                                  itemlistresponse![index]
+                                                      ['itemName']
+                                              : editNon_GSTitem.value =
+                                                  itemlistresponse![index]
+                                                          ['itemName']
+                                                      .toString();
+                                      print(editNon_GSTvendor.value);
+                                      print(
+                                          "${editGSTvendorid.value}${itemlistresponse![index]['itemId']}");
+
+                                      Get.back();
+                                    },
                                     child: Text(
                                         itemlistresponse![index]['itemName'])),
                                 Container(
@@ -100,6 +135,9 @@ class _itemsState extends State<items> {
                                     children: [
                                       IconButton(
                                           onPressed: () async {
+                                            setState(() {
+                                              itemlist = null;
+                                            });
                                             edititemnamectrl.text =
                                                 itemlistresponse == null
                                                     ? ""
@@ -316,11 +354,14 @@ class _itemsState extends State<items> {
                                             Icons.edit_outlined,
                                           )),
                                       IconButton(
-                                          onPressed: () {
+                                          onPressed: () async {
+                                            setState(() {
+                                              itemlist = null;
+                                            });
                                             Get.defaultDialog(
                                                 title: "",
                                                 content: Text(
-                                                    "Are you sure You want to delete"),
+                                                    "Are you sure you want to delete"),
                                                 actions: [
                                                   Padding(
                                                     padding:
@@ -334,11 +375,13 @@ class _itemsState extends State<items> {
                                                               .spaceBetween,
                                                       children: [
                                                         MaterialButton(
-                                                          onPressed: () {
+                                                          onPressed: () async {
                                                             deleteitemapi(
                                                                 itemlistresponse![
                                                                         index]
                                                                     ['itemId']);
+                                                            this.setState(
+                                                                () {});
                                                           },
                                                           color: Color.fromARGB(
                                                               255, 91, 171, 94),
@@ -386,6 +429,7 @@ class _itemsState extends State<items> {
                                                     ),
                                                   )
                                                 ]);
+                                            setState(() {});
                                           },
                                           icon: Icon(
                                             Icons.delete,
@@ -404,6 +448,9 @@ class _itemsState extends State<items> {
         floatingActionButton: FloatingActionButton.extended(
             backgroundColor: Color.fromARGB(255, 91, 171, 94),
             onPressed: () async {
+              setState(() {
+                itemlist = null;
+              });
               Get.defaultDialog(
                   title: "ADD",
                   content: Padding(
@@ -470,6 +517,7 @@ class _itemsState extends State<items> {
                             onPressed: () {
                               additemapi(additemnamectrl,
                                   additemdescriptionctrl, addunitctrl);
+                              this.setState(() {});
                             },
                             color: Color.fromARGB(255, 91, 171, 94),
                             child: Row(
@@ -508,6 +556,7 @@ class _itemsState extends State<items> {
                       ),
                     )
                   ]);
+              this.setState(() {});
             },
             icon: Icon(Icons.add),
             label: Text("Add")));
@@ -544,10 +593,12 @@ class _itemsState extends State<items> {
     if (response.statusCode == 200) {
       mapresponse = json.decode(response.body);
       print(response.body);
+
       Get.back();
-      this.setState(() {});
+      _itemapi();
+      setState(() {});
     } else {
-      print("login failed");
+      print("edit failed");
     }
   }
 
@@ -583,9 +634,10 @@ class _itemsState extends State<items> {
       mapresponse = json.decode(response.body);
       print(response.body);
       Get.back();
+      _itemapi();
       this.setState(() {});
     } else {
-      print("login failed");
+      print("add failed");
     }
   }
 
@@ -593,8 +645,8 @@ class _itemsState extends State<items> {
     var token = await DatabaseHelper.instance.getbookkeepermodel();
 
     Map mapresponse;
-
-    http.Response response = await http.post(
+    print("delete request is sent");
+    http.Response response = await http.delete(
       Uri.parse("http://192.168.0.101:8082/item/$itemid"),
       headers: {
         "accept": "*/*",
@@ -602,11 +654,13 @@ class _itemsState extends State<items> {
         "Authorization": "Bearer ${token[0]["appToken"]}"
       },
     );
+    print(response.statusCode);
     if (response.statusCode == 200) {
       mapresponse = json.decode(response.body);
+      _itemapi();
       print(response.body);
-      Get.back();
       this.setState(() {});
+      Get.back();
     } else {
       print("delete failed");
     }

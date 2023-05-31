@@ -42,7 +42,7 @@ class _loginScreenState extends State<loginScreen> {
   ) async {
     var data = json.encode({"email": email, "password": password});
     Map mapresponse;
-
+    print("Login initiated");
     http.Response response = await http.post(
         Uri.parse("http://192.168.0.101:8082/login"),
         headers: {"accept": "*/*", "Content-Type": "application/json"},

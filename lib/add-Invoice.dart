@@ -14,6 +14,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
 import 'home.dart';
+import 'itemscreen.dart';
+import 'vendorscreen.dart';
 
 class addInvoiceScreen extends StatefulWidget {
   const addInvoiceScreen({super.key});
@@ -52,7 +54,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
     print("vendor api request is sent");
     response1 = await http.get(
       Uri.parse(
-          "http://192.168.0.101:8082/searchVendor?vendorName=${GSTvendorctrl.text}"),
+          "http://192.168.0.101:8082/searchVendor?vendorName=${addGSTvendorctrl.text}"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
@@ -104,7 +106,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
 
     response1 = await http.get(
       Uri.parse(
-          "http://192.168.0.101:8082/searchItem?itemName=${GSTitemctrl.text}"),
+          "http://192.168.0.101:8082/searchItem?itemName=${addGSTitemctrl.text}"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
@@ -136,7 +138,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
     print("vendor api request is sent");
     response1 = await http.get(
       Uri.parse(
-          "http://192.168.0.101:8082/searchVendor?vendorName=${Non_GSTvendorctrl.text}"),
+          "http://192.168.0.101:8082/searchVendor?vendorName=${addNon_GSTvendorctrl.text}"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
@@ -188,7 +190,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
 
     response1 = await http.get(
       Uri.parse(
-          "http://192.168.0.101:8082/searchItem?itemName=${Non_GSTitemctrl.text}"),
+          "http://192.168.0.101:8082/searchItem?itemName=${addNon_GSTitemctrl.text}"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
@@ -289,14 +291,14 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
       var val = json.decode(res.body);
       print("val=$val");
       var modeofpayments = await DatabaseHelper.instance.getGSTmodeofpayments();
-      print(GSTitemctrl.text);
+      print(addGSTitemctrl.text);
       print(modeofpayments);
       addGSTbillapi(
           1,
-          GSTvendorid == null ? 0 : GSTvendorid,
-          GSTvendorctrl.text,
-          GSTitemid == null ? 0 : GSTitemid,
-          GSTitemctrl.text,
+          addGSTvendorid.value,
+          addGSTvendorctrl.text,
+          addGSTitemid.value,
+          addGSTitemctrl.text,
           GSTINctrl.text,
           stateid,
           invoicenumberctrl.text,
@@ -435,10 +437,10 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
           await DatabaseHelper.instance.getNonGSTmodeofpayments();
       addNonGSTbillapi(
           1,
-          NonGSTvendorid == null ? 0 : NonGSTvendorid,
-          Non_GSTvendorctrl.text,
-          NonGSTitemid == null ? 0 : NonGSTitemid,
-          Non_GSTitemctrl.text,
+          addNonGSTvendorid.value,
+          addNon_GSTvendorctrl.text,
+          addNonGSTitemid.value,
+          addNon_GSTitemctrl.text,
           instrument_referance_numberctrl.text,
           "${NonGSTdate.year}-${NonGSTdate.month}-${NonGSTdate.day}",
           int.parse(instrument_valuectrl.text),
@@ -637,7 +639,14 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             )
                           ],
                         ),
-                        forexample(GSTvendorslistresponse!.value, true, true),
+                        ValueListenableBuilder(
+                          valueListenable: addGSTvendor,
+                          builder: (BuildContext context, dynamic value,
+                              Widget? child) {
+                            addGSTvendorctrl.text = value;
+                            return forexample(addGSTvendorctrl, true, true);
+                          },
+                        ),
                         SizedBox(
                           height: 15,
                         ),
@@ -650,7 +659,14 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             )
                           ],
                         ),
-                        forexample(_GSTitemlistresponse!.value, true, false),
+                        ValueListenableBuilder(
+                          valueListenable: addGSTitem,
+                          builder: (BuildContext context, dynamic value,
+                              Widget? child) {
+                            addGSTitemctrl.text = value;
+                            return forexample(addGSTitemctrl, true, false);
+                          },
+                        ),
                         SizedBox(
                           height: 15,
                         ),
@@ -935,15 +951,14 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             var modeofpayments = await DatabaseHelper.instance
                                 .getGSTmodeofpayments();
                             print("modeofpayments=$modeofpayments");
-                            if (GSTvendorctrl.text.isEmpty ||
-                                GSTitemctrl.text.isEmpty ||
+                            if (addGSTvendorctrl.text.isEmpty ||
+                                addGSTitemctrl.text.isEmpty ||
                                 GSTINctrl.text.isEmpty ||
                                 statectrl.text.isEmpty ||
                                 invoicenumberctrl.text.isEmpty ||
                                 invoicedatectrl.text.isEmpty ||
                                 invoicevaluectrl.text.isEmpty ||
                                 HSN_SACctrl.text.isEmpty ||
-                                GSTgoodsandservicesctrl.text.isEmpty ||
                                 taxablevaluectrl.text.isEmpty ||
                                 GSTquantityctrl.text.isEmpty ||
                                 GSTunitctrl.text.isEmpty ||
@@ -1021,7 +1036,15 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             )
                           ],
                         ),
-                        forexample(GSTvendorslistresponse!.value, false, true),
+                        ValueListenableBuilder(
+                          valueListenable: addNon_GSTvendor,
+                          builder: (BuildContext context, dynamic value,
+                              Widget? child) {
+                            addNon_GSTvendorctrl.text = addNon_GSTvendor.value;
+                            return forexample(
+                                addNon_GSTvendorctrl, false, true);
+                          },
+                        ),
                         SizedBox(
                           height: 15,
                         ),
@@ -1034,7 +1057,14 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             )
                           ],
                         ),
-                        forexample(_GSTitemlistresponse!.value, false, false),
+                        ValueListenableBuilder(
+                          valueListenable: addNon_GSTitem,
+                          builder: (BuildContext context, dynamic value,
+                              Widget? child) {
+                            addNon_GSTitemctrl.text = value;
+                            return forexample(addNon_GSTitemctrl, false, false);
+                          },
+                        ),
                         SizedBox(
                           height: 15,
                         ),
@@ -1202,12 +1232,11 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             var modeofpayments = await DatabaseHelper.instance
                                 .getNonGSTmodeofpayments();
                             print("modeofpayments=$modeofpayments");
-                            if (Non_GSTvendorctrl.text.isEmpty ||
-                                Non_GSTitemctrl.text.isEmpty ||
+                            if (addNon_GSTvendorctrl.text.isEmpty ||
+                                addNon_GSTitemctrl.text.isEmpty ||
                                 instrument_referance_numberctrl.text.isEmpty ||
                                 instrumentdatectrl.text.isEmpty ||
                                 instrument_valuectrl.text.isEmpty ||
-                                NonGST_goods_servicesctrl.text.isEmpty ||
                                 NonGSTquantity_ctrl.text.isEmpty ||
                                 instrumentunitctrl.text.isEmpty ||
                                 instrumenttotalvaluectrl.text.isEmpty ||
@@ -1248,10 +1277,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
   }
 
   var stateid;
-  var GSTvendorid;
-  var GSTitemid;
-  var NonGSTvendorid;
-  var NonGSTitemid;
+
   fields(TextEditingController controller, bool text, bool state) {
     return Container(
       height: 50,
@@ -1377,146 +1403,189 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
   TextEditingController NonGSTtaxablevalctrl = TextEditingController();
   TextEditingController instrumentunitctrl = TextEditingController();
   TextEditingController instrumenttotalvaluectrl = TextEditingController();
+  TextEditingController addGSTitemctrl = TextEditingController();
+  TextEditingController addNon_GSTvendorctrl = TextEditingController();
+  TextEditingController addNon_GSTitemctrl = TextEditingController();
+  TextEditingController addGSTvendorctrl = TextEditingController();
 
-  TextEditingController GSTvendorctrl = TextEditingController();
-  TextEditingController GSTitemctrl = TextEditingController();
-  TextEditingController Non_GSTvendorctrl = TextEditingController();
-  TextEditingController Non_GSTitemctrl = TextEditingController();
-  forexample(List option, bool type, bool names) {
+  forexample(TextEditingController controller, bool type, bool names) {
     String novendormessage = "No Vendor found";
     String noitemmessage = "No Item found";
-    return ValueListenableBuilder(
-      valueListenable: type == true
-          ? names == true
-              ? GSTvendorslistresponse!
-              : _GSTitemlistresponse!
-          : names == true
-              ? NonGSTvendorslistresponse!
-              : _NonGSTitemlistresponse!,
-      builder: (BuildContext context, dynamic value, Widget? child) {
-        return Container(
-            child: TypeAheadField(
-          noItemsFoundBuilder: (context) => const SizedBox(
-            height: 50,
-            child: Center(child: Text("Not available")),
-          ),
-          suggestionsBoxDecoration: const SuggestionsBoxDecoration(
-            color: Colors.white,
-            elevation: 4.0,
-          ),
-          suggestionsCallback: (Value) async {
-            var search = type == true
+    return Container(
+        height: 50,
+        child: TextFormField(
+          keyboardType: TextInputType.none,
+          onTap: () {
+            type == true
                 ? names == true
-                    ? GSTvendorslistresponse!.value
-                    : _GSTitemlistresponse!.value
+                    ? Get.to(vendorsScreen(), arguments: [true, true])
+                    : Get.to(items(), arguments: [true, true])
                 : names == true
-                    ? NonGSTvendorslistresponse!.value
-                    : _NonGSTitemlistresponse!.value;
-
-            return search;
+                    ? Get.to(vendorsScreen(), arguments: [true, false])
+                    : Get.to(items(), arguments: [true, false]);
           },
-          textFieldConfiguration: TextFieldConfiguration(
-              onChanged: (value) {
-                type == true
-                    ? names == true
-                        ? _GSTvendorapi()
-                        : _Nonitemapi()
-                    : names == true
-                        ? _NonGSTvendorapi()
-                        : _NonGSTitemapi();
-                setState(() {
-                  type == true
-                      ? names == true
-                          ? GSTvendorid = null
-                          : GSTitemid = null
-                      : names == true
-                          ? NonGSTvendorid = null
-                          : NonGSTitemid = null;
-                });
-                print("GST item= ${GSTitemctrl.text}");
-                print("id's changed to ZERO");
-              },
-              controller: type == true
-                  ? names == true
-                      ? GSTvendorctrl
-                      : GSTitemctrl
-                  : names == true
-                      ? Non_GSTvendorctrl
-                      : Non_GSTitemctrl,
-              decoration: InputDecoration(
-                focusedBorder: const OutlineInputBorder(
+          controller: controller,
+          decoration: InputDecoration(
+              disabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                    width: 2,
-                    color: Color.fromARGB(255, 29, 134, 182),
-                  ),
-                ),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                  10.0,
-                )),
-                enabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(5.0),
-                    ),
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Color.fromARGB(255, 216, 216, 216),
-                    )),
-                contentPadding: const EdgeInsets.only(top: 4, left: 10),
+                width: 2,
+                color: Color.fromARGB(255, 216, 216, 216),
               )),
-          debounceDuration: const Duration(seconds: 1),
-          itemBuilder: (context, suggestion) {
-            // print(sugg);
-            return Row(
-              children: [
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      names == true
-                          ? suggestion['vendorName'].toString()
-                          : suggestion['itemName'].toString(),
-                      maxLines: 1,
-                      style: TextStyle(color: Colors.black),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-              ],
-            );
-          },
-          onSuggestionSelected: (suggestion) async {
-            // String sugg = suggestion.toString();
-            type == true
-                ? names == true
-                    ? GSTvendorctrl.text = suggestion['vendorName'].toString()
-                    : GSTitemctrl.text = suggestion['itemName'].toString()
-                : names == true
-                    ? Non_GSTvendorctrl.text =
-                        suggestion['vendorName'].toString()
-                    : Non_GSTitemctrl.text = suggestion['itemName'].toString();
-            String bata;
-            type == true
-                ? bata = suggestion['vendorName'].toString()
-                : bata = suggestion['itemName'].toString();
-            setState(() {
-              type == true
-                  ? names == true
-                      ? GSTvendorid = suggestion["vendorId"]
-                      : GSTitemid = suggestion["itemId"]
-                  : names == true
-                      ? NonGSTvendorid = suggestion["vendorId"]
-                      : NonGSTitemid = suggestion["itemId"];
-            });
-            print("GSTvendorid=$GSTvendorid");
-            print("GSTitemid=$GSTitemid");
-            print("NonGSTvendorid=$NonGSTvendorid");
-            print("NonGSTitemid=$NonGSTitemid");
-
-            print("bata=$bata");
-          },
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                width: 2,
+                color: Color.fromARGB(255, 216, 216, 216),
+              )),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                width: 2,
+                color: Color.fromARGB(255, 29, 134, 182),
+              ))),
         ));
-      },
-    );
+
+    //  ValueListenableBuilder(
+    //   valueListenable: type == true
+    //       ? names == true
+    //           ? GSTvendorslistresponse!
+    //           : _GSTitemlistresponse!
+    //       : names == true
+    //           ? NonGSTvendorslistresponse!
+    //           : _NonGSTitemlistresponse!,
+    //   builder: (BuildContext context, dynamic value, Widget? child) {
+    //     return Container(
+    //         child: TypeAheadField(
+    //       noItemsFoundBuilder: (context) => const SizedBox(
+    //         height: 50,
+    //         child: Center(child: Text("Not available")),
+    //       ),
+    //       suggestionsBoxDecoration: const SuggestionsBoxDecoration(
+    //         color: Colors.white,
+    //         elevation: 4.0,
+    //       ),
+    //       suggestionsCallback: (Value) async {
+    //         var search = type == true
+    //             ? names == true
+    //                 ? GSTvendorslistresponse!.value
+    //                 : _GSTitemlistresponse!.value
+    //             : names == true
+    //                 ? NonGSTvendorslistresponse!.value
+    //                 : _NonGSTitemlistresponse!.value;
+
+    //         return search;
+    //       },
+    //       textFieldConfiguration: TextFieldConfiguration(
+    //           onTap: () {
+    //             type == true
+    //                 ? names == true
+    //                     ? Get.to(vendorsScreen(), arguments: [true, true])
+    //                     : Get.to(items(), arguments: [true, false])
+    //                 : names == true
+    //                     ? Get.to(vendorsScreen(), arguments: [true, false])
+    //                     : Get.to(items(), arguments: [true, false]);
+    //           },
+    //           onChanged: (value) {
+    //             type == true
+    //                 ? names == true
+    //                     ? _GSTvendorapi()
+    //                     : _Nonitemapi()
+    //                 : names == true
+    //                     ? _NonGSTvendorapi()
+    //                     : _NonGSTitemapi();
+    //             setState(() {
+    //               type == true
+    //                   ? names == true
+    //                       ? addGSTvendorid.value = 0
+    //                       : addGSTitemid.value = 0
+    //                   : names == true
+    //                       ? addNonGSTvendorid.value = 0
+    //                       : addNonGSTitemid.value = 0;
+    //             });
+    //             print("GST item= ${addGSTitemctrl.text}");
+    //             print("id's changed to ZERO");
+    //           },
+    //           controller: type == true
+    //               ? names == true
+    //                   ? addGSTvendorctrl
+    //                   : addGSTitemctrl
+    //               : names == true
+    //                   ? addNon_GSTvendorctrl
+    //                   : addNon_GSTitemctrl,
+    //           decoration: InputDecoration(
+    //             focusedBorder: const OutlineInputBorder(
+    //               borderSide: BorderSide(
+    //                 width: 2,
+    //                 color: Color.fromARGB(255, 29, 134, 182),
+    //               ),
+    //             ),
+    //             border: OutlineInputBorder(
+    //                 borderRadius: BorderRadius.circular(
+    //               10.0,
+    //             )),
+    //             enabledBorder: const OutlineInputBorder(
+    //                 borderRadius: BorderRadius.all(
+    //                   Radius.circular(5.0),
+    //                 ),
+    //                 borderSide: BorderSide(
+    //                   width: 2,
+    //                   color: Color.fromARGB(255, 216, 216, 216),
+    //                 )),
+    //             contentPadding: const EdgeInsets.only(top: 4, left: 10),
+    //           )),
+    //       debounceDuration: const Duration(seconds: 1),
+    //       itemBuilder: (context, suggestion) {
+    //         // print(sugg);
+    //         return Row(
+    //           children: [
+    //             Flexible(
+    //               child: Padding(
+    //                 padding: const EdgeInsets.all(8.0),
+    //                 child: Text(
+    //                   names == true
+    //                       ? suggestion['vendorName'].toString()
+    //                       : suggestion['itemName'].toString(),
+    //                   maxLines: 1,
+    //                   style: TextStyle(color: Colors.black),
+    //                   overflow: TextOverflow.ellipsis,
+    //                 ),
+    //               ),
+    //             )
+    //           ],
+    //         );
+    //       },
+    //       onSuggestionSelected: (suggestion) async {
+    //         // String sugg = suggestion.toString();
+    //         type == true
+    //             ? names == true
+    //                 ? addGSTvendorctrl.text =
+    //                     suggestion['vendorName'].toString()
+    //                 : addGSTitemctrl.text = suggestion['itemName'].toString()
+    //             : names == true
+    //                 ? addNon_GSTvendorctrl.text =
+    //                     suggestion['vendorName'].toString()
+    //                 : addNon_GSTitemctrl.text =
+    //                     suggestion['itemName'].toString();
+    //         String bata;
+    //         type == true
+    //             ? bata = suggestion['vendorName'].toString()
+    //             : bata = suggestion['itemName'].toString();
+    //         setState(() {
+    //           type == true
+    //               ? names == true
+    //                   ? addGSTvendorid.value = suggestion["vendorId"]
+    //                   : addGSTitemid.value = suggestion["itemId"]
+    //               : names == true
+    //                   ? addNonGSTvendorid.value = suggestion["vendorId"]
+    //                   : addNonGSTitemid.value = suggestion["itemId"];
+    //         });
+    //         print("addGSTvendorid.value=$addGSTvendorid.value");
+    //         print("addGSTitemid.value=$addGSTitemid.value");
+    //         print("addNonGSTvendorid.value=$addNonGSTvendorid.value");
+    //         print("addNonGSTitemid.value=$addNonGSTitemid.value");
+
+    //         print("bata=$bata");
+    //       },
+    //     ));
+    //   },
+    // );
   }
 }

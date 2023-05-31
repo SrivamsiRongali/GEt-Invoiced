@@ -22,11 +22,45 @@ class homeScreen extends StatefulWidget {
   State<homeScreen> createState() => _homeScreenState();
 }
 
+late ValueNotifier<int> addGSTvendorid;
+late ValueNotifier<int> addGSTitemid;
+late ValueNotifier<int> addNonGSTvendorid;
+late ValueNotifier<int> addNonGSTitemid;
+late ValueNotifier<String> addGSTvendor;
+late ValueNotifier<String> addGSTitem;
+late ValueNotifier<String> addNon_GSTvendor;
+late ValueNotifier<String> addNon_GSTitem;
+late ValueNotifier<String> editGSTvendor;
+late ValueNotifier<String> editGSTitem;
+
+late ValueNotifier<int> editGSTvendorid;
+late ValueNotifier<int> editGSTitemid;
+late ValueNotifier<int> editNonGSTvendorid;
+late ValueNotifier<int> editNonGSTitemid;
+late ValueNotifier<String> editNon_GSTvendor;
+late ValueNotifier<String> editNon_GSTitem;
+
 class _homeScreenState extends State<homeScreen> {
   @override
   void initState() {
     super.initState();
     _modeofpaymentapi();
+    editGSTvendorid = ValueNotifier<int>(0);
+    editGSTitemid = ValueNotifier<int>(0);
+    editGSTvendor = ValueNotifier<String>("");
+    editGSTitem = ValueNotifier<String>("");
+    addGSTvendorid = ValueNotifier<int>(0);
+    addGSTitemid = ValueNotifier<int>(0);
+    addNonGSTvendorid = ValueNotifier<int>(0);
+    addNonGSTitemid = ValueNotifier<int>(0);
+    addNon_GSTitem = ValueNotifier<String>("");
+    addGSTvendor = ValueNotifier<String>("");
+    addGSTitem = ValueNotifier<String>("");
+    addNon_GSTvendor = ValueNotifier<String>("");
+    editNonGSTvendorid = ValueNotifier<int>(0);
+    editNonGSTitemid = ValueNotifier<int>(0);
+    editNon_GSTvendor = ValueNotifier<String>("");
+    editNon_GSTitem = ValueNotifier<String>("");
   }
 
   List? listresponse;
@@ -148,7 +182,7 @@ class _homeScreenState extends State<homeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                          "${DateTime.fromMicrosecondsSinceEpoch(listresponse![index]['billCreatedOn']).day}/${DateTime.fromMicrosecondsSinceEpoch(listresponse![index]['billCreatedOn']).month}/${DateTime.fromMicrosecondsSinceEpoch(listresponse![index]['billCreatedOn']).year}"),
+                          "${DateTime.fromMillisecondsSinceEpoch(listresponse![index]['billCreatedOn']).day}/${DateTime.fromMillisecondsSinceEpoch(listresponse![index]['billCreatedOn']).month}/${DateTime.fromMillisecondsSinceEpoch(listresponse![index]['billCreatedOn']).year}"),
                       ListTile(
                         onTap: () async {
                           await DatabaseHelper.instance

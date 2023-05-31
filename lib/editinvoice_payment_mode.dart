@@ -62,14 +62,17 @@ class _editinvoicepaymentModeScreenState
       print('successful');
       mapresponse = json.decode(response1.body);
       print(response1.body);
-     setState(() {
+      setState(() {
         listresponse = mapresponse['message'];
         modeofpayments = listofmodeofpayments;
         if (modeofpayments != []) {
           // print("final mode of payment");
           for (int index = 0; index < listresponse!.length; index++) {
             selectedval.add(select(
-                value: false, id: listresponse![index]["paymentMethodId"]));
+                value: false,
+                id: listresponse![index]["paymentMethodId"],
+                billPaymentId: 0,
+                updateForBillPayment: 0));
 
             for (int n = 0; n < modeofpayments.length; n++) {
               // print("final mode of payment");
@@ -77,7 +80,10 @@ class _editinvoicepaymentModeScreenState
                   modeofpayments[n]['modeOfPaymentId'] as int) {
                 print("final mode of payment");
                 selectedval[index].value = true;
-
+                selectedval[index].billPaymentId =
+                    modeofpayments[n]['billPaymentId'];
+                selectedval[index].updateForBillPayment =
+                    modeofpayments[n]['updateForBillPayment'];
                 selectedval[index].numberctrl.text =
                     modeofpayments[n]['paymentValue'].toString();
               }
@@ -139,9 +145,6 @@ class _editinvoicepaymentModeScreenState
                     shrinkWrap: true,
                     itemCount: listresponse == null ? 1 : listresponse!.length,
                     itemBuilder: (context, index) {
-
-                    
-
                       return listresponse == null
                           ? Container(
                               height: 200,
@@ -176,6 +179,27 @@ class _editinvoicepaymentModeScreenState
                                                       .numberctrl
                                                       .clear();
                                                 }
+                                                int remaining = 0;
+                                                for (int n = 0;
+                                                    n < selectedval.length;
+                                                    n++) {
+                                                  String num = selectedval[n]
+                                                              .numberctrl
+                                                              .text ==
+                                                          ""
+                                                      ? "0"
+                                                      : selectedval[n]
+                                                          .numberctrl
+                                                          .text;
+                                                  setState(() {
+                                                    remaining = remaining +
+                                                        int.parse(num);
+                                                  });
+                                                }
+                                                setState(() {
+                                                  remainingamount.value =
+                                                      (val[0]) - remaining;
+                                                });
                                               }),
                                           Text(listresponse![index]
                                                   ['paymentMethodName']
@@ -259,16 +283,49 @@ class _editinvoicepaymentModeScreenState
                 onPressed: () async {
                   if (val[1] == true) {
                     if (remainingamount.value == 0) {
-                      await DatabaseHelper.instance.removeGSTmodeofpayment();
+                      var paymentdata =
+                          await DatabaseHelper.instance.getGSTmodeofpayments();
                       for (int n = 0; n < selectedval.length; n++) {
-                        if (selectedval[n].value == true) {
-                          await DatabaseHelper.instance.addGSTmodeofpayment(
-                              Gstmodeofpayment(
-                                  modeOfPaymentId: selectedval[n].id,
-                                  paymentValue: int.parse(
-                                      selectedval[n].numberctrl.text.length == 0
-                                          ? "0"
-                                          : selectedval[n].numberctrl.text)));
+                        for (int m = 0; m < paymentdata.length; m++) {
+                          if (selectedval[n].billPaymentId ==
+                              paymentdata[m]['billPaymentId']) {
+                            if (selectedval[n].numberctrl.text ==
+                                paymentdata[m]['paymentValue']) {
+                              await DatabaseHelper.instance
+                                  .updateGSTmodeofpayment(
+                                0,
+                                selectedval[n].billPaymentId,
+                                selectedval[n].id,
+                                int.parse(
+                                    selectedval[n].numberctrl.text.length == 0
+                                        ? "0"
+                                        : selectedval[n].numberctrl.text),
+                              );
+                            } else if (selectedval[n].numberctrl.text.isEmpty) {
+                              await DatabaseHelper.instance
+                                  .updateGSTmodeofpayment(
+                                1,
+                                selectedval[n].billPaymentId,
+                                selectedval[n].id,
+                                int.parse(
+                                    selectedval[n].numberctrl.text.length == 0
+                                        ? "0"
+                                        : selectedval[n].numberctrl.text),
+                              );
+                            }
+                          } else if (selectedval[n].billPaymentId == 0 &&
+                              selectedval[n].numberctrl.text.isNotEmpty) {
+                            await DatabaseHelper.instance.addGSTmodeofpayment(
+                                Gstmodeofpayment(
+                                    modeOfPaymentId: selectedval[n].id,
+                                    paymentValue: int.parse(
+                                        selectedval[n].numberctrl.text.length ==
+                                                0
+                                            ? "0"
+                                            : selectedval[n].numberctrl.text),
+                                    updateForBillPayment: 0,
+                                    billPaymentId: 0));
+                          }
                         }
                       }
                       var data =
@@ -278,16 +335,49 @@ class _editinvoicepaymentModeScreenState
                     }
                   } else {
                     if (remainingamount.value == 0) {
-                      await DatabaseHelper.instance.removenonGSTmodeofpayment();
+                      var paymentdata = await DatabaseHelper.instance
+                          .getNonGSTmodeofpayments();
                       for (int n = 0; n < selectedval.length; n++) {
-                        if (selectedval[n].value == true) {
-                          await DatabaseHelper.instance.addNonGSTmodeofpayment(
-                              Nongstmodeofpayment(
-                                  modeOfPaymentId: selectedval[n].id,
-                                  paymentValue: int.parse(
-                                      selectedval[n].numberctrl.text.length == 0
-                                          ? "0"
-                                          : selectedval[n].numberctrl.text)));
+                        for (int m = 0; m < paymentdata.length; m++) {
+                          if (selectedval[n].billPaymentId ==
+                              paymentdata[m]['billPaymentId']) {
+                            if (selectedval[n].numberctrl.text ==
+                                paymentdata[m]['paymentValue']) {
+                              await DatabaseHelper.instance
+                                  .updateGSTmodeofpayment(
+                                0,
+                                selectedval[n].billPaymentId,
+                                selectedval[n].id,
+                                int.parse(
+                                    selectedval[n].numberctrl.text.length == 0
+                                        ? "0"
+                                        : selectedval[n].numberctrl.text),
+                              );
+                            } else if (selectedval[n].numberctrl.text.isEmpty) {
+                              await DatabaseHelper.instance
+                                  .updateGSTmodeofpayment(
+                                1,
+                                selectedval[n].billPaymentId,
+                                selectedval[n].id,
+                                int.parse(
+                                    selectedval[n].numberctrl.text.length == 0
+                                        ? "0"
+                                        : selectedval[n].numberctrl.text),
+                              );
+                            }
+                          } else if (selectedval[n].billPaymentId == 0 &&
+                              selectedval[n].numberctrl.text.isNotEmpty) {
+                            await DatabaseHelper.instance
+                                .addNonGSTmodeofpayment(Nongstmodeofpayment(
+                                    modeOfPaymentId: selectedval[n].id,
+                                    paymentValue: int.parse(
+                                        selectedval[n].numberctrl.text.length ==
+                                                0
+                                            ? "0"
+                                            : selectedval[n].numberctrl.text),
+                                    updateForBillPayment: 0,
+                                    billPaymentId: 0));
+                          }
                         }
                       }
                       var data = await DatabaseHelper.instance

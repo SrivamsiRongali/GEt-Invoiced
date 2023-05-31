@@ -61,10 +61,14 @@ class BookKeeperModel {
 
 // ignore_for_file: file_names, unnecessary_new
 class Gstmodeofpayment {
+  int updateForBillPayment;
+  int billPaymentId;
   int modeOfPaymentId;
   int paymentValue;
 
   Gstmodeofpayment({
+    required this.updateForBillPayment,
+    required this.billPaymentId,
     required this.modeOfPaymentId,
     required this.paymentValue,
   });
@@ -72,11 +76,15 @@ class Gstmodeofpayment {
   // ignore: unnecessary_new
   factory Gstmodeofpayment.fromMap(Map<String, dynamic> json) =>
       new Gstmodeofpayment(
+        updateForBillPayment: json["updateForBillPayment"],
+        billPaymentId: json['billPaymentId'],
         modeOfPaymentId: json['modeOfPaymentId'],
         paymentValue: json['paymentValue'],
       );
   Map<String, dynamic> toMap() {
     return {
+      "updateForBillPayment": updateForBillPayment,
+      "billPaymentId": billPaymentId,
       'modeOfPaymentId': modeOfPaymentId,
       "paymentValue": paymentValue,
     };
@@ -84,10 +92,14 @@ class Gstmodeofpayment {
 }
 
 class Nongstmodeofpayment {
+  int updateForBillPayment;
+  int billPaymentId;
   int modeOfPaymentId;
   int paymentValue;
 
   Nongstmodeofpayment({
+    required this.updateForBillPayment,
+    required this.billPaymentId,
     required this.modeOfPaymentId,
     required this.paymentValue,
   });
@@ -95,11 +107,15 @@ class Nongstmodeofpayment {
   // ignore: unnecessary_new
   factory Nongstmodeofpayment.fromMap(Map<String, dynamic> json) =>
       new Nongstmodeofpayment(
+        updateForBillPayment: json["updateForBillPayment"],
+        billPaymentId: json['billPaymentId'],
         modeOfPaymentId: json['modeOfPaymentId'],
         paymentValue: json['paymentValue'],
       );
   Map<String, dynamic> toMap() {
     return {
+      "updateForBillPayment": updateForBillPayment,
+      "billPaymentId": billPaymentId,
       "modeOfPaymentId": modeOfPaymentId,
       "paymentValue": paymentValue,
     };

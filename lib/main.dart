@@ -13,9 +13,9 @@ import 'package:invoiced/registeration.dart';
 import 'package:get/get.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  // await Firebase.initializeApp();
+  await Firebase.initializeApp();
 
   runApp(const MyApp());
 }

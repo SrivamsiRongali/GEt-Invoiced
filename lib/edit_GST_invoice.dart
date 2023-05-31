@@ -15,6 +15,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
 import 'editinvoice_payment_mode.dart';
 import 'home.dart';
+import 'itemscreen.dart';
+import 'vendorscreen.dart';
 
 class editGSTInvoiceScreen extends StatefulWidget {
   const editGSTInvoiceScreen({super.key});
@@ -27,6 +29,7 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
   @override
   void initState() {
     // TODO: implement initState
+
     GSTvendorslistresponse = ValueNotifier<List>([]);
     _GSTitemlistresponse = ValueNotifier<List>([]);
 
@@ -58,16 +61,18 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
       print(response1.body);
       setState(() {
         listresponse = mapresponse['message'];
-        GSTvendorid = listresponse![0]["vendorId"];
-        GSTitemid = listresponse![0]["itemId"];
+        editGSTvendorid.value = listresponse![0]["vendorId"];
+        editGSTitemid.value = listresponse![0]["itemId"];
         stateid = listresponse![0]["stateId"];
       });
       var date = DateTime.fromMillisecondsSinceEpoch(
           listresponse![0]["dateOfInvoice"]);
-      GSTvendorctrl.text = listresponse![0]["vendorId"].toString();
-      GSTitemctrl.text = listresponse![0]["itemId"].toString();
+      editGSTvendor.value = listresponse![0]["vendorName"].toString();
+      editGSTitem.value = listresponse![0]["itemName"].toString();
+      editGSTvendorctrl.text = listresponse![0]["vendorName"].toString();
+      editGSTitemctrl.text = listresponse![0]["itemName"].toString();
       GSTINctrl.text = listresponse![0]["gstin"].toString();
-      statectrl.text = listresponse![0]["stateId"].toString();
+      statectrl.text = listresponse![0]["stateName"].toString();
       invoicenumberctrl.text = listresponse![0]["invoiceNumber"].toString();
       invoicedatectrl.text = "${date.day}-${date.month}-${date.year}";
       invoicevaluectrl.text = listresponse![0]["invoiceValue"].toString();
@@ -86,10 +91,17 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
       if (listresponse![0]["modeOfPayments"] != null) {
         for (int n = 0; n < listresponse![0]["modeOfPayments"].length; n++) {
           await DatabaseHelper.instance.addGSTmodeofpayment(Gstmodeofpayment(
-              modeOfPaymentId: listresponse![0]["modeOfPayments"][n]
-                  ['modeOfPaymentId'],
-              paymentValue: listresponse![0]["modeOfPayments"][n]
-                  ['paymentValue']));
+            modeOfPaymentId: listresponse![0]["modeOfPayments"][n]
+                ['modeOfPaymentId'],
+            paymentValue: listresponse![0]["modeOfPayments"][n]['paymentValue'],
+            updateForBillPayment: listresponse![0]["modeOfPayments"][n]
+                        ['updateForBillPayment'] ==
+                    null
+                ? 0
+                : listresponse![0]["modeOfPayments"][n]['updateForBillPayment'],
+            billPaymentId: listresponse![0]["modeOfPayments"][n]
+                ['billPaymentId'],
+          ));
         }
       }
       print("GST bill = $listresponse");
@@ -109,7 +121,7 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
     print("vendor api request is sent");
     response1 = await http.get(
       Uri.parse(
-          "http://192.168.0.101:8082/searchVendor?vendorName=${GSTvendorctrl.text}"),
+          "http://192.168.0.101:8082/searchVendor?vendorName=${editGSTvendorctrl.text}"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
@@ -161,7 +173,7 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
 
     response1 = await http.get(
       Uri.parse(
-          "http://192.168.0.101:8082/searchItem?itemName=${GSTitemctrl.text}"),
+          "http://192.168.0.101:8082/searchItem?itemName=${editGSTitemctrl.text}"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
@@ -257,10 +269,10 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
 
       editGSTbillapi(
           1,
-          GSTvendorid == null ? 0 : GSTvendorid,
-          GSTvendorctrl.text,
-          GSTitemid == null ? 0 : GSTitemid,
-          GSTitemctrl.text,
+          editGSTvendorid.value,
+          editGSTvendorctrl.text,
+          editGSTitemid.value,
+          editGSTitemctrl.text,
           GSTINctrl.text,
           stateid,
           invoicenumberctrl.text,
@@ -445,392 +457,401 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: GSTvendorslistresponse!.value == null
+          child: listresponse == null
               ? Container(
                   height: 300,
                   child: Center(
                     child: CircularProgressIndicator(),
                   ),
                 )
-              : _GSTitemlistresponse!.value == null
+              : GSTvendorslistresponse!.value == null
                   ? Container(
                       height: 300,
                       child: Center(
                         child: CircularProgressIndicator(),
                       ),
                     )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text('Bill Image'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            edit == true
-                                ? showModalBottomSheet(
-                                    context: context,
-                                    builder: ((builder) => bottomSheet(
-                                        screensize.height,
-                                        screensize.width,
-                                        true)))
-                                : Text("not editable");
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 2,
-                                    color: Color.fromARGB(255, 222, 222, 222)),
-                                borderRadius: BorderRadius.circular(5)),
-                            height: screensize.height * 0.2,
-                            width: screensize.width * 0.9,
-                            child: Center(
-                              child: GSTimage == null
-                                  ? Text(
-                                      "Upload Image",
-                                      style: TextStyle(color: Colors.grey),
-                                    )
-                                  : Image.file(GSTimage!),
-                            ),
+                  : _GSTitemlistresponse!.value == null
+                      ? Container(
+                          height: 300,
+                          child: Center(
+                            child: CircularProgressIndicator(),
                           ),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text("Vendor"),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        forexample(GSTvendorslistresponse!.value, edit, true),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('Item Name'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        forexample(_GSTitemlistresponse!.value, edit, false),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Column(
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Text('GSTIN'),
+                                Text('Bill Image'),
                                 Text(
                                   "*",
                                   style: TextStyle(color: Colors.red),
                                 )
                               ],
                             ),
-                          ],
-                        ),
-                        fields(GSTINctrl, true, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('State Name'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(statectrl, true, true, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('Invoice Number'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(invoicenumberctrl, true, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('Date of Invoice'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        Datefields(invoicedatectrl, true, context, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('Invoice Value'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(invoicevaluectrl, false, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('HSN/SAC Code'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(HSN_SACctrl, true, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('Goods/Service Description'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(goodsandservicesctrl, true, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('Taxable Value'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(taxablevaluectrl, false, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('Quantity'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(quantityctrl, false, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('Unit'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(unitctrl, true, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('IGST Rate'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(IGSTRatectrl, false, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('IGST Amount'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(IGSTamountctrl, false, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('SGST Rate'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(SGSTratectrl, false, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('SGST Amount'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(SGSTamountctrl, false, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('CGST Rate'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(CGSTratectrl, false, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('CGST Amount'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(CGSTamountctrl, false, false, edit),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        MaterialButton(
-                          onPressed: () {
-                            Get.to(editinvoicepaymentModeScreen(), arguments: [
-                              int.parse(invoicevaluectrl.text),
-                              true
-                            ]);
-                          },
-                          height: screensize.height * 0.065,
-                          color: Color.fromARGB(255, 91, 171, 94),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(7)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Select Mode of Payment',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20),
-                              )
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        MaterialButton(
-                          onPressed: () async {
-                            setState(() {});
-                            var modeofpayments = await DatabaseHelper.instance
-                                .getGSTmodeofpayments();
-                            print("modeofpayments=$modeofpayments");
-                            if (edit == true) {
-                              if (GSTvendorctrl.text.isEmpty ||
-                                  GSTitemctrl.text.isEmpty ||
-                                  GSTINctrl.text.isEmpty ||
-                                  statectrl.text.isEmpty ||
-                                  invoicenumberctrl.text.isEmpty ||
-                                  invoicedatectrl.text.isEmpty ||
-                                  invoicevaluectrl.text.isEmpty ||
-                                  HSN_SACctrl.text.isEmpty ||
-                                  goodsandservicesctrl.text.isEmpty ||
-                                  taxablevaluectrl.text.isEmpty ||
-                                  quantityctrl.text.isEmpty ||
-                                  unitctrl.text.isEmpty ||
-                                  ((IGSTRatectrl.text.isEmpty ||
-                                          IGSTamountctrl.text.isEmpty) &&
-                                      (SGSTratectrl.text.isEmpty ||
-                                          SGSTamountctrl.text.isEmpty)) ||
-                                  CGSTratectrl.text.isEmpty ||
-                                  CGSTamountctrl.text.isEmpty ||
-                                  GSTimage == null) {
-                                Get.defaultDialog(
-                                    title: "",
-                                    content: Text(
-                                        "Please fill all the mandatory fields"));
-                              } else if (modeofpayments == null) {
-                                Get.defaultDialog(
-                                    title: "",
-                                    content:
-                                        Text("Please provide mode of payment"));
-                              } else {
-                                GSTvendorid == null
-                                    ? Get.defaultDialog(
-                                        title: "Vendor not available",
+                            GestureDetector(
+                              onTap: () {
+                                edit == true
+                                    ? showModalBottomSheet(
+                                        context: context,
+                                        builder: ((builder) => bottomSheet(
+                                            screensize.height,
+                                            screensize.width,
+                                            true)))
+                                    : Text("not editable");
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        width: 2,
+                                        color:
+                                            Color.fromARGB(255, 222, 222, 222)),
+                                    borderRadius: BorderRadius.circular(5)),
+                                height: screensize.height * 0.2,
+                                width: screensize.width * 0.9,
+                                child: Center(
+                                  child: GSTimage == null
+                                      ? Text(
+                                          "Upload Image",
+                                          style: TextStyle(color: Colors.grey),
+                                        )
+                                      : Image.file(GSTimage!),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text("Vendor"),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            ValueListenableBuilder(
+                              valueListenable: editGSTvendor,
+                              builder: (context, value, child) {
+                                editGSTvendorctrl.text = value;
+                                return Container(
+                                    child: forexample(
+                                        editGSTvendorctrl, edit, true));
+                              },
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('Item Name'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            ValueListenableBuilder(
+                              valueListenable: editGSTitem,
+                              builder: (BuildContext context, dynamic value,
+                                  Widget? child) {
+                                editGSTitemctrl.text = value;
+                                return Container(
+                                    child: forexample(
+                                        editGSTitemctrl, edit, false));
+                              },
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text('GSTIN'),
+                                    Text(
+                                      "*",
+                                      style: TextStyle(color: Colors.red),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                            fields(GSTINctrl, true, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('State Name'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(statectrl, true, true, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('Invoice Number'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(invoicenumberctrl, true, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('Date of Invoice'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            Datefields(invoicedatectrl, true, context, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('Invoice Value'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(invoicevaluectrl, false, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('HSN/SAC Code'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(HSN_SACctrl, true, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('Goods/Service Description'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(goodsandservicesctrl, true, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('Taxable Value'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(taxablevaluectrl, false, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('Quantity'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(quantityctrl, false, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('Unit'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(unitctrl, true, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('IGST Rate'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(IGSTRatectrl, false, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('IGST Amount'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(IGSTamountctrl, false, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('SGST Rate'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(SGSTratectrl, false, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('SGST Amount'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(SGSTamountctrl, false, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('CGST Rate'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(CGSTratectrl, false, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                Text('CGST Amount'),
+                                Text(
+                                  "*",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            ),
+                            fields(CGSTamountctrl, false, false, edit),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            MaterialButton(
+                              onPressed: () {
+                                if (listresponse![0]['modeOfPayments'] ==
+                                    null) {
+                                  Get.defaultDialog(
+                                      title: "", content: Text("unavailable"));
+                                } else {
+                                  Get.to(editinvoicepaymentModeScreen(),
+                                      arguments: [
+                                        int.parse(invoicevaluectrl.text),
+                                        true
+                                      ]);
+                                }
+                              },
+                              height: screensize.height * 0.065,
+                              color: Color.fromARGB(255, 91, 171, 94),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(7)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Select Mode of Payment',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  )
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            MaterialButton(
+                              onPressed: () async {
+                                setState(() {});
+                                var modeofpayments = await DatabaseHelper
+                                    .instance
+                                    .getGSTmodeofpayments();
+                                print("modeofpayments=$modeofpayments");
+                                if (edit == true) {
+                                  if (editGSTvendorctrl.text.isEmpty ||
+                                      editGSTitemctrl.text.isEmpty ||
+                                      GSTINctrl.text.isEmpty ||
+                                      statectrl.text.isEmpty ||
+                                      invoicenumberctrl.text.isEmpty ||
+                                      invoicedatectrl.text.isEmpty ||
+                                      invoicevaluectrl.text.isEmpty ||
+                                      HSN_SACctrl.text.isEmpty ||
+                                      goodsandservicesctrl.text.isEmpty ||
+                                      taxablevaluectrl.text.isEmpty ||
+                                      quantityctrl.text.isEmpty ||
+                                      unitctrl.text.isEmpty ||
+                                      ((IGSTRatectrl.text.isEmpty ||
+                                              IGSTamountctrl.text.isEmpty) &&
+                                          (SGSTratectrl.text.isEmpty ||
+                                              SGSTamountctrl.text.isEmpty)) ||
+                                      CGSTratectrl.text.isEmpty ||
+                                      CGSTamountctrl.text.isEmpty ||
+                                      GSTimage == null) {
+                                    Get.defaultDialog(
+                                        title: "",
                                         content: Text(
-                                            "Please add vendor before saving the bill"),
-                                        actions: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                MaterialButton(
-                                                  onPressed: () {
-                                                    Get.back();
-                                                  },
-                                                  child: Text("Cancel"),
-                                                ),
-                                                MaterialButton(
-                                                  onPressed: () {},
-                                                  child: Text("Ok"),
-                                                )
-                                              ],
-                                            )
-                                          ])
-                                    : GSTitemid == null
+                                            "Please fill all the mandatory fields"));
+                                  } else if (modeofpayments == null) {
+                                    Get.defaultDialog(
+                                        title: "",
+                                        content: Text(
+                                            "Please provide mode of payment"));
+                                  } else {
+                                    editGSTvendorid == null
                                         ? Get.defaultDialog(
-                                            title: "Item not available",
+                                            title: "Vendor not available",
                                             content: Text(
-                                                "Please add Item before saving the bill"),
+                                                "Please add vendor before saving the bill"),
                                             actions: [
                                                 Row(
                                                   mainAxisAlignment:
@@ -850,49 +871,73 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
                                                   ],
                                                 )
                                               ])
-                                        : uploadGSTimage();
-                              }
-                            }
-                          },
-                          height: screensize.height * 0.065,
-                          color: Color.fromARGB(255, 91, 171, 94),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(7)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Save Changes',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20),
-                              )
-                            ],
-                          ),
+                                        : editGSTitemid == null
+                                            ? Get.defaultDialog(
+                                                title: "Item not available",
+                                                content: Text(
+                                                    "Please add Item before saving the bill"),
+                                                actions: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        MaterialButton(
+                                                          onPressed: () {
+                                                            Get.back();
+                                                          },
+                                                          child: Text("Cancel"),
+                                                        ),
+                                                        MaterialButton(
+                                                          onPressed: () {},
+                                                          child: Text("Ok"),
+                                                        )
+                                                      ],
+                                                    )
+                                                  ])
+                                            : uploadGSTimage();
+                                  }
+                                }
+                              },
+                              height: screensize.height * 0.065,
+                              color: Color.fromARGB(255, 91, 171, 94),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(7)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Save Changes',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  )
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            MaterialButton(
+                              onPressed: () {
+                                _DeleteGSTbillapi();
+                              },
+                              height: screensize.height * 0.065,
+                              color: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(7)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Delete',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        MaterialButton(
-                          onPressed: () {
-                            _DeleteGSTbillapi();
-                          },
-                          height: screensize.height * 0.065,
-                          color: Colors.red,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(7)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Delete',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20),
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
         ),
       ),
     );
@@ -968,8 +1013,6 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
   }
 
   var stateid;
-  var GSTvendorid;
-  var GSTitemid;
 
   fields(TextEditingController controller, bool text, bool state, bool enable) {
     return Container(
@@ -1025,8 +1068,6 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
     );
   }
 
-  TextEditingController GSTvendorctrl = TextEditingController();
-  TextEditingController GSTitemctrl = TextEditingController();
   TextEditingController GSTINctrl = TextEditingController();
   TextEditingController statectrl = TextEditingController();
   TextEditingController invoicenumberctrl = TextEditingController();
@@ -1043,108 +1084,148 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
   TextEditingController SGSTamountctrl = TextEditingController();
   TextEditingController CGSTratectrl = TextEditingController();
   TextEditingController CGSTamountctrl = TextEditingController();
-  forexample(List option, bool enable, bool names) {
+  TextEditingController editGSTvendorctrl = TextEditingController();
+  TextEditingController editGSTitemctrl = TextEditingController();
+  forexample(TextEditingController controller, bool enable, bool names) {
     return ValueListenableBuilder(
       valueListenable:
           names == true ? GSTvendorslistresponse! : _GSTitemlistresponse!,
       builder: (BuildContext context, dynamic value, Widget? child) {
         return Container(
-            child: TypeAheadField(
-          // noItemsFoundBuilder: (context) => const SizedBox(
-          //   height: 50,
-          //   child: Center(
-          //     child: Text(names==true?"No Vendor Found" :'No Item Found'),
-          //   ),
-          // ),
-          suggestionsBoxDecoration: const SuggestionsBoxDecoration(
-            color: Colors.white,
-            elevation: 4.0,
-          ),
-          suggestionsCallback: (Value) async {
-            var search = names == true
-                ? GSTvendorslistresponse!.value
-                : _GSTitemlistresponse!.value;
-            print(search);
-            return search;
-          },
-          textFieldConfiguration: TextFieldConfiguration(
-              onChanged: (value) {
-                names == true ? _vendorapi() : _itemapi();
-                setState(() {
-                  names == true ? GSTvendorid = null : GSTitemid = null;
-                });
-              },
+            height: 50,
+            child: TextFormField(
+              keyboardType: TextInputType.none,
               enabled: enable,
-              controller: names == true ? GSTvendorctrl : GSTitemctrl,
+              onTap: () {
+                names == true
+                    ? Get.to(vendorsScreen(), arguments: [false, true])
+                    : Get.to(items(), arguments: [
+                        false,
+                        true,
+                      ]);
+              },
+              controller: controller,
               decoration: InputDecoration(
-                disabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(5.0),
-                    ),
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Color.fromARGB(255, 216, 216, 216),
-                    )),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(
+                  disabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                    width: 2,
+                    color: Color.fromARGB(255, 216, 216, 216),
+                  )),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                    width: 2,
+                    color: Color.fromARGB(255, 216, 216, 216),
+                  )),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
                     width: 2,
                     color: Color.fromARGB(255, 29, 134, 182),
-                  ),
-                ),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                  10.0,
-                )),
-                enabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(5.0),
-                    ),
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: Color.fromARGB(255, 216, 216, 216),
-                    )),
-                contentPadding: const EdgeInsets.only(top: 4, left: 10),
-              )),
-          debounceDuration: const Duration(seconds: 1),
-          itemBuilder: (context, suggestion) {
-            // print(sugg);
-            return Row(
-              children: [
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      names == true
-                          ? suggestion['vendorName'].toString()
-                          : suggestion['itemName'].toString(),
-                      maxLines: 1,
-                      style: TextStyle(color: Colors.black),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-              ],
-            );
-          },
-          onSuggestionSelected: (suggestion) async {
-            // String sugg = suggestion.toString();
-            names == true
-                ? GSTvendorctrl.text = suggestion['vendorName'].toString()
-                : GSTitemctrl.text = suggestion['itemName'].toString();
+                  ))),
+            ));
+        // Container(
+        //     child: TypeAheadField(
+        //   // noItemsFoundBuilder: (context) => const SizedBox(
+        //   //   height: 50,
+        //   //   child: Center(
+        //   //     child: Text(names==true?"No Vendor Found" :'No Item Found'),
+        //   //   ),
+        //   // ),
+        //   suggestionsBoxDecoration: const SuggestionsBoxDecoration(
+        //     color: Colors.white,
+        //     elevation: 4.0,
+        //   ),
+        //   suggestionsCallback: (Value) async {
+        //     var search = names == true
+        //         ? GSTvendorslistresponse!.value
+        //         : _GSTitemlistresponse!.value;
+        //     print(search);
+        //     return search;
+        //   },
+        //   textFieldConfiguration: TextFieldConfiguration(
+        //       onTap: () {
+        //         names == true
+        //             ? Get.to(vendorsScreen(), arguments: [false, true])
+        //             : Get.to(items(), arguments: [false, true]);
+        //       },
+        //       onChanged: (value) {
+        //         names == true ? _vendorapi() : _itemapi();
+        //         setState(() {
+        //           names == true
+        //               ? editGSTvendorid.value = 0
+        //               : editGSTitemid.value = 0;
+        //         });
+        //       },
+        //       enabled: enable,
+        //       controller: names == true ? editGSTvendorctrl : editGSTitemctrl,
+        //       decoration: InputDecoration(
+        //         disabledBorder: const OutlineInputBorder(
+        //             borderRadius: BorderRadius.all(
+        //               Radius.circular(5.0),
+        //             ),
+        //             borderSide: BorderSide(
+        //               width: 2,
+        //               color: Color.fromARGB(255, 216, 216, 216),
+        //             )),
+        //         focusedBorder: const OutlineInputBorder(
+        //           borderSide: BorderSide(
+        //             width: 2,
+        //             color: Color.fromARGB(255, 29, 134, 182),
+        //           ),
+        //         ),
+        //         border: OutlineInputBorder(
+        //             borderRadius: BorderRadius.circular(
+        //           10.0,
+        //         )),
+        //         enabledBorder: const OutlineInputBorder(
+        //             borderRadius: BorderRadius.all(
+        //               Radius.circular(5.0),
+        //             ),
+        //             borderSide: BorderSide(
+        //               width: 2,
+        //               color: Color.fromARGB(255, 216, 216, 216),
+        //             )),
+        //         contentPadding: const EdgeInsets.only(top: 4, left: 10),
+        //       )),
+        //   debounceDuration: const Duration(seconds: 1),
+        //   itemBuilder: (context, suggestion) {
+        //     // print(sugg);
+        //     return Row(
+        //       children: [
+        //         Flexible(
+        //           child: Padding(
+        //             padding: const EdgeInsets.all(8.0),
+        //             child: Text(
+        //               names == true
+        //                   ? suggestion['vendorName'].toString()
+        //                   : suggestion['itemName'].toString(),
+        //               maxLines: 1,
+        //               style: TextStyle(color: Colors.black),
+        //               overflow: TextOverflow.ellipsis,
+        //             ),
+        //           ),
+        //         )
+        //       ],
+        //     );
+        //   },
+        //   onSuggestionSelected: (suggestion) async {
+        //     // String sugg = suggestion.toString();
+        //     names == true
+        //         ? editGSTvendorctrl.text = suggestion['vendorName'].toString()
+        //         : editGSTitemctrl.text = suggestion['itemName'].toString();
 
-            String bata;
-            names == true
-                ? bata = suggestion['vendorName'].toString()
-                : bata = suggestion['itemName'].toString();
-            setState(() {
-              names == true
-                  ? GSTvendorid = suggestion["vendorId"]
-                  : GSTitemid = suggestion["itemId"];
-            });
+        //     String bata;
+        //     names == true
+        //         ? bata = suggestion['vendorName'].toString()
+        //         : bata = suggestion['itemName'].toString();
+        //     setState(() {
+        //       names == true
+        //           ? editGSTvendorid.value = suggestion["vendorId"]
+        //           : editGSTitemid.value = suggestion["itemId"];
+        //     });
 
-            print("bata=$bata");
-          },
-        ));
+        //     print("bata=$bata");
+        //   },
+        // ));
       },
     );
   }
