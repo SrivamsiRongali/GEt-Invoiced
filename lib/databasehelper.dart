@@ -97,7 +97,27 @@ baseurl STRING
     Set updateForBillPayment = $updateForBillPayment,
         modeOfPaymentId = $modeOfPaymentId,
         paymentValue = $paymentValue 
-        where billPaymentId=$billPaymentId
+        where modeOfPaymentId = $modeOfPaymentId And billPaymentId=$billPaymentId
+      ''');
+
+    return result;
+  }
+
+  Future deleteGSTmodeofpayment(int modeOfPaymentId) async {
+    Database db = await instance.database;
+    var result = await db.rawQuery('''DELETE FROM gstmodeofpayment
+   
+        WHERE billPaymentId=0 AND modeOfPaymentId = $modeOfPaymentId
+      ''');
+
+    return result;
+  }
+
+  Future deleteNonGSTmodeofpayment(int modeOfPaymentId) async {
+    Database db = await instance.database;
+    var result = await db.rawQuery('''DELETE FROM gstmodeofpayment
+   
+        WHERE billPaymentId=0 AND modeOfPaymentId = $modeOfPaymentId
       ''');
 
     return result;
@@ -110,7 +130,7 @@ baseurl STRING
     Set updateForBillPayment= $updateForBillPayment,
         modeOfPaymentId=$modeOfPaymentId,
         paymentValue=$paymentValue 
-        where billPaymentId=$billPaymentId
+        where modeOfPaymentId = $modeOfPaymentId And billPaymentId=$billPaymentId
       ''');
 
     return result;

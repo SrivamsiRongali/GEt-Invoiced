@@ -74,12 +74,12 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       editNonGSTitemid.value = listresponse![0]["itemId"];
 
       var date = DateTime.fromMillisecondsSinceEpoch(
-          listresponse![0]["instrumentDate"]);
+          listresponse![0]["dateOfInvoice"]);
       editNon_GSTvendorctrl.text = listresponse![0]["vendorName"].toString();
       editNon_GSTvendor.value = listresponse![0]["vendorName"].toString();
       editNon_GSTitemctrl.text = listresponse![0]["itemName"].toString();
       instrument_referance_numberctrl.text =
-          listresponse![0]["instrumentReferenceNumber"].toString();
+          listresponse![0]["invoiceNumber"].toString();
       instrumentdatectrl.text = "${date.day}-${date.month}-${date.year}";
       goods_servicesctrl.text =
           listresponse![0]["goodsServiceDescription"].toString();
@@ -88,7 +88,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       quantity_ctrl.text = listresponse![0]["quantity"].toString();
       instrumentunitctrl.text = listresponse![0]["unit"].toString();
       instrumenttotalvaluectrl.text =
-          listresponse![0]["instrumentTotalValue"].toString();
+          listresponse![0]["invoiceValue"].toString();
       if (listresponse![0]["modeOfPayments"] != null) {
         for (int n = 0; n < listresponse![0]["modeOfPayments"].length; n++) {
           await DatabaseHelper.instance.addNonGSTmodeofpayment(
@@ -444,19 +444,6 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
                               ),
                               Row(
                                 children: [
-                                  Text('Instrument value'),
-                                  Text(
-                                    "*",
-                                    style: TextStyle(color: Colors.red),
-                                  )
-                                ],
-                              ),
-                              fields(instrument_valuectrl, false, edit),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Row(
-                                children: [
                                   Text('Good/Service description'),
                                   Text(
                                     "*",
@@ -496,7 +483,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
                               ),
                               Row(
                                 children: [
-                                  Text('Instrument total value'),
+                                  Text('Invoice value'),
                                   Text(
                                     "*",
                                     style: TextStyle(color: Colors.red),
@@ -802,14 +789,14 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       String vendorname,
       int itemid,
       String itemName,
-      String instrumentReferenceNumber,
-      String instrumentDate,
+      String invoiceNumber,
+      String dateOfInvoice,
       int instrumentValue,
       String goodsServiceDescription,
       int taxableValue,
       int quantity,
       String unit,
-      int instrumentTotalValue,
+      int invoiceValue,
       String billImgaePath,
       var modeofPayments) async {
     var token = await DatabaseHelper.instance.getbookkeepermodel();
@@ -818,14 +805,12 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       "vendorName": vendorname,
       "itemId": itemid,
       "itemName": itemName,
-      "instrumentReferenceNumber": instrumentReferenceNumber,
-      "instrumentDate": instrumentDate,
-      "instrumentValue": instrumentValue,
+      "invoiceNumber": invoiceNumber,
+      "dateOfInvoice": dateOfInvoice,
       "goodsServiceDescription": goodsServiceDescription,
-      "taxableValue": taxableValue,
       "quantity": quantity,
       "unit": unit,
-      "instrumentTotalValue": instrumentTotalValue,
+      "invoiceValue": invoiceValue,
       "billImagePath": billImgaePath,
       "billCreatedOn": "",
       "billCreatedBy": "",

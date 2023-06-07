@@ -69,6 +69,12 @@ class _homeScreenState extends State<homeScreen> {
     http.Response response1;
     var token = await DatabaseHelper.instance.getbookkeepermodel();
     print("${token[0]["appToken"]}");
+    var data = json.encode({
+      "minGstAmountSpent": null,
+      "maxGstAmountSpent": null,
+      "firstDateOfBillCreated": "",
+      "lastDateOfBillCreated": ""
+    });
     response1 = await http.get(
       Uri.parse("http://192.168.0.101:8082/bills"),
       headers: {
@@ -102,9 +108,321 @@ class _homeScreenState extends State<homeScreen> {
           actions: [
             IconButton(
                 onPressed: () {
-                  Get.to(profilescreen());
+                  Get.bottomSheet(
+                    isScrollControlled: true,
+                    elevation: 2,
+                    ignoreSafeArea: true,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(25.0),
+                      ),
+                    ),
+                    barrierColor: Colors.transparent,
+                    StatefulBuilder(
+                      builder: (BuildContext context, setState) => Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(25.0),
+                            ),
+                          ),
+                          child: Padding(
+                              padding:
+                                  EdgeInsets.only(top: 50, left: 20, right: 20),
+                              child: Column(
+                                //crossAxisAlignment: CrossAxisAlignment.start,
+                                //mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text("Filter"),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 5.0),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 5.0),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 5.0),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 5.0),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 150,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 29, 134, 182),
+                                              )),
+                                              enabledBorder: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                color: Color.fromARGB(
+                                                    255, 216, 216, 216),
+                                              ))),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: OutlinedButton(
+                                        child: Text(
+                                          'Search Products',
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          primary:
+                                              Color.fromARGB(255, 80, 40, 190),
+                                        ),
+                                        onPressed: () {},
+                                      )),
+                                ],
+                              ))),
+                    ),
+                    isDismissible: true,
+                  );
                 },
-                icon: Icon(Icons.person))
+                icon: Icon(Icons.filter_alt_outlined))
           ],
         ),
         drawer: Drawer(
@@ -144,7 +462,13 @@ class _homeScreenState extends State<homeScreen> {
                               Get.to(items());
                             },
                             child:
-                                Text("Items", style: TextStyle(fontSize: 20)))
+                                Text("Items", style: TextStyle(fontSize: 20))),
+                        TextButton(
+                            onPressed: () {
+                              Get.to(profilescreen());
+                            },
+                            child:
+                                Text("Profile", style: TextStyle(fontSize: 20)))
                       ],
                     ),
                   ),

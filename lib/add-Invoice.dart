@@ -472,14 +472,14 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
       String vendorname,
       int itemid,
       String itemName,
-      String instrumentReferenceNumber,
-      String instrumentDate,
+      String invoiceNumber,
+      String dateOfInvoice,
       int instrumentValue,
       String goodsServiceDescription,
       int taxableValue,
       int quantity,
       String unit,
-      int instrumentTotalValue,
+      int invoiceValue,
       String billImgaePath,
       List modeofPayments) async {
     var token = await DatabaseHelper.instance.getbookkeepermodel();
@@ -489,14 +489,13 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
       "vendorName": vendorname,
       "itemId": itemid,
       "itemName": itemName,
-      "instrumentReferenceNumber": instrumentReferenceNumber,
-      "instrumentDate": instrumentDate,
-      "instrumentValue": instrumentValue,
+      "invoiceNumber": invoiceNumber,
+      "dateOfInvoice": dateOfInvoice,
       "goodsServiceDescription": goodsServiceDescription,
       "taxableValue": taxableValue,
       "quantity": quantity,
       "unit": unit,
-      "instrumentTotalValue": instrumentTotalValue,
+      "invoiceValue": invoiceValue,
       "billImagePath": billImgaePath,
       "billCreatedOn": "",
       "billCreatedBy": "",
@@ -804,57 +803,70 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                         SizedBox(
                           height: 15,
                         ),
-                        Row(
+                        Column(
                           children: [
-                            Text('IGST Rate'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
+                            selectGst == false
+                                ? Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('IGST Rate'),
+                                          Text(
+                                            "*",
+                                            style: TextStyle(color: Colors.red),
+                                          )
+                                        ],
+                                      ),
+                                      gstfields(IGSTRatectrl, false, false),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text('IGST Amount'),
+                                          Text(
+                                            "*",
+                                            style: TextStyle(color: Colors.red),
+                                          )
+                                        ],
+                                      ),
+                                      gstfields(IGSTRatectrl, false, false),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                    ],
+                                  )
+                                : Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('SGST Rate'),
+                                          Text(
+                                            "*",
+                                            style: TextStyle(color: Colors.red),
+                                          )
+                                        ],
+                                      ),
+                                      gstfields(SGSTratectrl, false, false),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text('SGST Amount'),
+                                          Text(
+                                            "*",
+                                            style: TextStyle(color: Colors.red),
+                                          )
+                                        ],
+                                      ),
+                                      gstfields(SGSTamountctrl, false, false),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                    ],
+                                  ),
                           ],
-                        ),
-                        fields(IGSTRatectrl, false, false),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('IGST Amount'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(IGSTamountctrl, false, false),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('SGST Rate'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(SGSTratectrl, false, false),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('SGST Amount'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(SGSTamountctrl, false, false),
-                        SizedBox(
-                          height: 15,
                         ),
                         Row(
                           children: [
@@ -865,7 +877,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             )
                           ],
                         ),
-                        fields(CGSTratectrl, false, false),
+                        gstfields(CGSTratectrl, true, false),
                         SizedBox(
                           height: 15,
                         ),
@@ -878,7 +890,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                             )
                           ],
                         ),
-                        fields(CGSTamountctrl, false, false),
+                        gstfields(CGSTamountctrl, true, false),
                         SizedBox(
                           height: 15,
                         ),
@@ -1072,7 +1084,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                           children: [
                             Row(
                               children: [
-                                Text('Instrument reference number'),
+                                Text('Invoice number'),
                                 Text(
                                   "*",
                                   style: TextStyle(color: Colors.red),
@@ -1087,7 +1099,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                         ),
                         Row(
                           children: [
-                            Text('Instrument date'),
+                            Text('Invoice date'),
                             Text(
                               "*",
                               style: TextStyle(color: Colors.red),
@@ -1095,19 +1107,6 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                           ],
                         ),
                         Datefields(instrumentdatectrl, false, context),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          children: [
-                            Text('Instrument value'),
-                            Text(
-                              "*",
-                              style: TextStyle(color: Colors.red),
-                            )
-                          ],
-                        ),
-                        fields(instrument_valuectrl, false, false),
                         SizedBox(
                           height: 15,
                         ),
@@ -1152,7 +1151,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                         ),
                         Row(
                           children: [
-                            Text('Instrument total value'),
+                            Text('Invoice value'),
                             Text(
                               "*",
                               style: TextStyle(color: Colors.red),
@@ -1277,6 +1276,67 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
   }
 
   var stateid;
+  gstfields(TextEditingController controller, bool cgst, bool state) {
+    return Container(
+      height: 50,
+      child: TextFormField(
+        keyboardType: TextInputType.number,
+        enabled: !state,
+        onChanged: (value) async {
+          print("value add=${value.toUpperCase()}");
+          if (selectGst == true) {
+            if (value.isNotEmpty) {
+              var SGSTamount;
+              SGSTamount = (int.parse(taxablevaluectrl.text) / 100) *
+                  int.parse(SGSTratectrl.text);
+              SGSTamountctrl.text = SGSTamount.toString();
+            } else {
+              SGSTamountctrl.clear();
+            }
+          } else {
+            if (value.isNotEmpty) {
+              var IGSTamount;
+              IGSTamount = (int.parse(taxablevaluectrl.text) / 100) *
+                  int.parse(IGSTRatectrl.text);
+              IGSTamountctrl.text = IGSTamount.toString();
+            } else {
+              IGSTamountctrl.clear();
+            }
+          }
+          if (cgst == true) {
+            if (value.isNotEmpty) {
+              var CGSTamount;
+              CGSTamount = (int.parse(taxablevaluectrl.text) / 100) *
+                  int.parse(CGSTratectrl.text);
+              CGSTamountctrl.text = CGSTamount.toString();
+            } else {
+              CGSTamountctrl.clear();
+            }
+          }
+        },
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        controller: controller,
+        decoration: InputDecoration(
+            disabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              width: 2,
+              color: Color.fromARGB(255, 216, 216, 216),
+            )),
+            enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              width: 2,
+              color: Color.fromARGB(255, 216, 216, 216),
+            )),
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              width: 2,
+              color: Color.fromARGB(255, 29, 134, 182),
+            ))),
+      ),
+    );
+  }
+
+  bool selectGst = true;
 
   fields(TextEditingController controller, bool text, bool state) {
     return Container(
@@ -1298,6 +1358,7 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
                 statectrl.text = _statelistresponse![n]['StateName'].toString();
                 setState(() {
                   stateid = _statelistresponse![n]["stateId"];
+                  val == "TS" ? selectGst = true : selectGst = false;
                 });
 
                 print("State is selected");

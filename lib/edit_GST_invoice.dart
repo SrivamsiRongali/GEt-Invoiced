@@ -245,11 +245,11 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
     var request = new http.MultipartRequest(
         "POST", Uri.parse("http://192.168.0.101:8082/addBillImage"));
 
-    Map<String, String> headers = {
-      "Accept": "*/*",
-      "Content-Type": "application/json",
-      "Authorization": "Bearer ${token[0]["appToken"]}"
-    };
+    // Map<String, String> headers = {
+    //   "Accept": "*/*",
+    //   "Content-Type": "application/json",
+    //   "Authorization": "Bearer ${token[0]["appToken"]}"
+    // };
     String filename = GSTimage!.path.split("/").last;
     var multiport = new http.MultipartFile("billImagePath", stream, length,
         filename: filename);
@@ -257,7 +257,7 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
 
     // request.headers[headers];
     // request.headers['accept'] = '*/*';
-    // request.headers['Content-Type'] = "application/json";
+    request.headers["Authorization"] = "Bearer ${token[0]["appToken"]}";
     var response = await request.send();
     if (response.statusCode == 200) {
       print("Image Uploaded");
@@ -407,7 +407,7 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
     Map mapresponse;
 
     http.Response response =
-        await http.put(Uri.parse("http://192.168.0.101:8082/gstBill/9"),
+        await http.put(Uri.parse("http://192.168.0.101:8082/gstBill/$billid"),
             headers: {
               "accept": "*/*",
               "Content-Type": "application/json",
@@ -700,57 +700,75 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
                             SizedBox(
                               height: 15,
                             ),
-                            Row(
+                            Column(
                               children: [
-                                Text('IGST Rate'),
-                                Text(
-                                  "*",
-                                  style: TextStyle(color: Colors.red),
-                                )
+                                selectGst == false
+                                    ? Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text('IGST Rate'),
+                                              Text(
+                                                "*",
+                                                style: TextStyle(
+                                                    color: Colors.red),
+                                              )
+                                            ],
+                                          ),
+                                          gstfields(IGSTRatectrl, false, false),
+                                          SizedBox(
+                                            height: 15,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text('IGST Amount'),
+                                              Text(
+                                                "*",
+                                                style: TextStyle(
+                                                    color: Colors.red),
+                                              )
+                                            ],
+                                          ),
+                                          gstfields(IGSTRatectrl, false, false),
+                                          SizedBox(
+                                            height: 15,
+                                          ),
+                                        ],
+                                      )
+                                    : Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text('SGST Rate'),
+                                              Text(
+                                                "*",
+                                                style: TextStyle(
+                                                    color: Colors.red),
+                                              )
+                                            ],
+                                          ),
+                                          gstfields(SGSTratectrl, false, false),
+                                          SizedBox(
+                                            height: 15,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text('SGST Amount'),
+                                              Text(
+                                                "*",
+                                                style: TextStyle(
+                                                    color: Colors.red),
+                                              )
+                                            ],
+                                          ),
+                                          gstfields(
+                                              SGSTamountctrl, false, false),
+                                          SizedBox(
+                                            height: 15,
+                                          ),
+                                        ],
+                                      ),
                               ],
-                            ),
-                            fields(IGSTRatectrl, false, false, edit),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Row(
-                              children: [
-                                Text('IGST Amount'),
-                                Text(
-                                  "*",
-                                  style: TextStyle(color: Colors.red),
-                                )
-                              ],
-                            ),
-                            fields(IGSTamountctrl, false, false, edit),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Row(
-                              children: [
-                                Text('SGST Rate'),
-                                Text(
-                                  "*",
-                                  style: TextStyle(color: Colors.red),
-                                )
-                              ],
-                            ),
-                            fields(SGSTratectrl, false, false, edit),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Row(
-                              children: [
-                                Text('SGST Amount'),
-                                Text(
-                                  "*",
-                                  style: TextStyle(color: Colors.red),
-                                )
-                              ],
-                            ),
-                            fields(SGSTamountctrl, false, false, edit),
-                            SizedBox(
-                              height: 15,
                             ),
                             Row(
                               children: [
@@ -761,7 +779,7 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
                                 )
                               ],
                             ),
-                            fields(CGSTratectrl, false, false, edit),
+                            gstfields(CGSTratectrl, true, false),
                             SizedBox(
                               height: 15,
                             ),
@@ -774,7 +792,7 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
                                 )
                               ],
                             ),
-                            fields(CGSTamountctrl, false, false, edit),
+                            gstfields(CGSTamountctrl, true, false),
                             SizedBox(
                               height: 15,
                             ),
@@ -826,7 +844,6 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
                                       invoicedatectrl.text.isEmpty ||
                                       invoicevaluectrl.text.isEmpty ||
                                       HSN_SACctrl.text.isEmpty ||
-                                      goodsandservicesctrl.text.isEmpty ||
                                       taxablevaluectrl.text.isEmpty ||
                                       quantityctrl.text.isEmpty ||
                                       unitctrl.text.isEmpty ||
@@ -969,6 +986,68 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
       print('fetch unsuccessful');
     }
   }
+
+  gstfields(TextEditingController controller, bool cgst, bool state) {
+    return Container(
+      height: 50,
+      child: TextFormField(
+        keyboardType: TextInputType.number,
+        enabled: !state,
+        onChanged: (value) async {
+          print("value add=${value.toUpperCase()}");
+          if (selectGst == true) {
+            if (value.isNotEmpty) {
+              var SGSTamount;
+              SGSTamount = (int.parse(taxablevaluectrl.text) / 100) *
+                  int.parse(SGSTratectrl.text);
+              SGSTamountctrl.text = SGSTamount.toString();
+            } else {
+              SGSTamountctrl.clear();
+            }
+          } else {
+            if (value.isNotEmpty) {
+              var IGSTamount;
+              IGSTamount = (int.parse(taxablevaluectrl.text) / 100) *
+                  int.parse(IGSTRatectrl.text);
+              IGSTamountctrl.text = IGSTamount.toString();
+            } else {
+              IGSTamountctrl.clear();
+            }
+          }
+          if (cgst == true) {
+            if (value.isNotEmpty) {
+              var CGSTamount;
+              CGSTamount = (int.parse(taxablevaluectrl.text) / 100) *
+                  int.parse(CGSTratectrl.text);
+              CGSTamountctrl.text = CGSTamount.toString();
+            } else {
+              CGSTamountctrl.clear();
+            }
+          }
+        },
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        controller: controller,
+        decoration: InputDecoration(
+            disabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              width: 2,
+              color: Color.fromARGB(255, 216, 216, 216),
+            )),
+            enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              width: 2,
+              color: Color.fromARGB(255, 216, 216, 216),
+            )),
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              width: 2,
+              color: Color.fromARGB(255, 29, 134, 182),
+            ))),
+      ),
+    );
+  }
+
+  bool selectGst = true;
 
   Widget bottomSheet(double screenheight, double screenwidth, bool type) {
     return Container(

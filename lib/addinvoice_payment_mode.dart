@@ -23,8 +23,9 @@ class addinvoicepaymentModeScreen extends StatefulWidget {
 class select {
   bool value;
   int id;
-  int billPaymentId;
+  int? billPaymentId;
   int updateForBillPayment;
+  bool update;
 
   TextEditingController numberctrl = TextEditingController();
 
@@ -32,6 +33,7 @@ class select {
       {required this.value,
       required this.id,
       required this.billPaymentId,
+      required this.update,
       required this.updateForBillPayment});
 }
 
@@ -74,7 +76,8 @@ class _addinvoicepaymentModeScreenState
             selectedval.add(select(
                 value: false,
                 id: listresponse![index]["paymentMethodId"],
-                billPaymentId: 0,
+                update: false,
+                billPaymentId: null,
                 updateForBillPayment: 0));
 
             for (int n = 0; n < modeofpayments.length; n++) {

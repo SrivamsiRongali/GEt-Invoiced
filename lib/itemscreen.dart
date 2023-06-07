@@ -24,15 +24,17 @@ class _itemsState extends State<items> {
 
   Future? itemlist;
   List? itemlistresponse;
-
+  TextEditingController itemctrl = TextEditingController();
   Future _itemapi() async {
     Map mapresponse;
     http.Response response1;
 
     var token = await DatabaseHelper.instance.getbookkeepermodel();
-    print("items api request is sent");
+    print("item api request is sent");
+
     response1 = await http.get(
-      Uri.parse("http://192.168.0.101:8082/items"),
+      Uri.parse(
+          "http://192.168.0.101:8082/searchItem?itemName=${itemctrl.text}"),
       headers: {
         "accept": "*/*",
         "Content-Type": "application/json",
@@ -69,77 +71,111 @@ class _itemsState extends State<items> {
         ),
         body: FutureBuilder(
           future: itemlist,
-          builder: (context, snapshot) => Container(
-            child: ListView.builder(
-                itemCount:
-                    itemlistresponse == null ? 1 : itemlistresponse!.length,
-                itemBuilder: (context, index) {
-                  return itemlistresponse == null
-                      ? Container(
-                          child: Center(child: CircularProgressIndicator()),
-                          height: 300,
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            child: Center(
-                                child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextButton(
-                                    onPressed: () {
-                                      val[0] == true
-                                          ? val[1] == true
-                                              ? addGSTitemid.value =
-                                                  itemlistresponse![index]
-                                                      ['itemId']
-                                              : addNonGSTitemid.value =
-                                                  itemlistresponse![index]
-                                                      ['itemId']
-                                          : val[1] == true
-                                              ? editGSTitemid.value =
-                                                  itemlistresponse![index]
-                                                      ['itemId']
-                                              : editNonGSTitemid.value =
-                                                  itemlistresponse![index]
-                                                      ['itemId'];
-                                      val[0] == true
-                                          ? val[1] == true
-                                              ? addGSTitem.value =
-                                                  itemlistresponse![index]
-                                                      ['itemName']
-                                              : addNon_GSTitem.value =
-                                                  itemlistresponse![index]
-                                                      ['itemName']
-                                          : val[1] == true
-                                              ? editGSTitem.value =
-                                                  itemlistresponse![index]
-                                                      ['itemName']
-                                              : editNon_GSTitem.value =
-                                                  itemlistresponse![index]
+          builder: (context, snapshot) => Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: itemctrl,
+                  onChanged: (Value) {
+                    setState(() {
+                      itemlist = _itemapi();
+                    });
+                  },
+                  decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.search_outlined),
+                      hintText: "Search",
+                      disabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        width: 2,
+                        color: Color.fromARGB(255, 216, 216, 216),
+                      )),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        width: 2,
+                        color: Color.fromARGB(255, 216, 216, 216),
+                      )),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                        width: 2,
+                        color: Color.fromARGB(255, 29, 134, 182),
+                      ))),
+                ),
+              ),
+              Container(
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount:
+                        itemlistresponse == null ? 1 : itemlistresponse!.length,
+                    itemBuilder: (context, index) {
+                      return itemlistresponse == null
+                          ? Container(
+                              child: Center(child: CircularProgressIndicator()),
+                              height: 300,
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                child: Center(
+                                    child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    TextButton(
+                                        onPressed: () {
+                                          val[0] == true
+                                              ? val[1] == true
+                                                  ? addGSTitemid.value =
+                                                      itemlistresponse![index]
+                                                          ['itemId']
+                                                  : addNonGSTitemid.value =
+                                                      itemlistresponse![index]
+                                                          ['itemId']
+                                              : val[1] == true
+                                                  ? editGSTitemid.value =
+                                                      itemlistresponse![index]
+                                                          ['itemId']
+                                                  : editNonGSTitemid.value =
+                                                      itemlistresponse![index]
+                                                          ['itemId'];
+                                          val[0] == true
+                                              ? val[1] == true
+                                                  ? addGSTitem.value =
+                                                      itemlistresponse![index]
                                                           ['itemName']
-                                                      .toString();
-                                      print(editNon_GSTvendor.value);
-                                      print(
-                                          "${editGSTvendorid.value}${itemlistresponse![index]['itemId']}");
+                                                  : addNon_GSTitem.value =
+                                                      itemlistresponse![index]
+                                                          ['itemName']
+                                              : val[1] == true
+                                                  ? editGSTitem.value =
+                                                      itemlistresponse![index]
+                                                          ['itemName']
+                                                  : editNon_GSTitem.value =
+                                                      itemlistresponse![index]
+                                                              ['itemName']
+                                                          .toString();
+                                          print(editNon_GSTvendor.value);
+                                          print(
+                                              "${editGSTvendorid.value}${itemlistresponse![index]['itemId']}");
 
-                                      Get.back();
-                                    },
-                                    child: Text(
-                                        itemlistresponse![index]['itemName'])),
-                                Container(
-                                  width: 100,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      IconButton(
-                                          onPressed: () async {
-                                            setState(() {
-                                              itemlist = null;
-                                            });
-                                            edititemnamectrl.text =
-                                                itemlistresponse == null
+                                          Get.back();
+                                        },
+                                        child: Text(itemlistresponse![index]
+                                            ['itemName'])),
+                                    Container(
+                                      width: 100,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          IconButton(
+                                              onPressed: () async {
+                                                setState(() {
+                                                  itemlist = null;
+                                                });
+                                                edititemnamectrl
+                                                    .text = itemlistresponse ==
+                                                        null
                                                     ? ""
                                                     : itemlistresponse![index]
                                                                 ['itemName'] ==
@@ -147,8 +183,9 @@ class _itemsState extends State<items> {
                                                         ? ""
                                                         : itemlistresponse![
                                                             index]['itemName'];
-                                            edititemdescriptionctrl.text =
-                                                itemlistresponse == null
+                                                edititemdescriptionctrl
+                                                    .text = itemlistresponse ==
+                                                        null
                                                     ? ""
                                                     : itemlistresponse![index][
                                                                 'itemDescription'] ==
@@ -157,8 +194,9 @@ class _itemsState extends State<items> {
                                                         : itemlistresponse![
                                                                 index]
                                                             ['itemDescription'];
-                                            editunitctrl.text =
-                                                itemlistresponse == null
+                                                editunitctrl
+                                                    .text = itemlistresponse ==
+                                                        null
                                                     ? ""
                                                     : itemlistresponse![index]
                                                                 ['itemUnit'] ==
@@ -166,283 +204,296 @@ class _itemsState extends State<items> {
                                                         ? ""
                                                         : itemlistresponse![
                                                             index]['itemUnit'];
-                                            Get.defaultDialog(
-                                                title: "Edit",
-                                                content: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 10,
-                                                          right: 10,
-                                                          bottom: 10),
-                                                  child: Column(
-                                                    children: [
-                                                      TextFormField(
-                                                        controller:
-                                                            edititemnamectrl,
-                                                        decoration:
-                                                            InputDecoration(
-                                                                label: Text(
-                                                                    "Item Name"),
-                                                                focusedBorder:
-                                                                    OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(
-                                                                  color: Color
-                                                                      .fromARGB(
-                                                                          255,
-                                                                          29,
-                                                                          134,
-                                                                          182),
-                                                                )),
-                                                                enabledBorder:
-                                                                    OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(
-                                                                  color: Color
-                                                                      .fromARGB(
-                                                                          255,
-                                                                          216,
-                                                                          216,
-                                                                          216),
-                                                                ))),
-                                                      ),
-                                                      SizedBox(
-                                                        height: 10,
-                                                      ),
-                                                      TextFormField(
-                                                        controller:
-                                                            edititemdescriptionctrl,
-                                                        decoration:
-                                                            InputDecoration(
-                                                                label: Text(
-                                                                    "Description"),
-                                                                focusedBorder:
-                                                                    OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(
-                                                                  color: Color
-                                                                      .fromARGB(
-                                                                          255,
-                                                                          29,
-                                                                          134,
-                                                                          182),
-                                                                )),
-                                                                enabledBorder:
-                                                                    OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(
-                                                                  color: Color
-                                                                      .fromARGB(
-                                                                          255,
-                                                                          216,
-                                                                          216,
-                                                                          216),
-                                                                ))),
-                                                      ),
-                                                      SizedBox(
-                                                        height: 10,
-                                                      ),
-                                                      TextFormField(
-                                                        controller:
-                                                            editunitctrl,
-                                                        decoration:
-                                                            InputDecoration(
-                                                                label: Text(
-                                                                    "Unit"),
-                                                                focusedBorder:
-                                                                    OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(
-                                                                  color: Color
-                                                                      .fromARGB(
-                                                                          255,
-                                                                          29,
-                                                                          134,
-                                                                          182),
-                                                                )),
-                                                                enabledBorder:
-                                                                    OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(
-                                                                  color: Color
-                                                                      .fromARGB(
-                                                                          255,
-                                                                          216,
-                                                                          216,
-                                                                          216),
-                                                                ))),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                                actions: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10,
-                                                            right: 10,
-                                                            bottom: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        MaterialButton(
-                                                          onPressed: () {
-                                                            updateitemapi(
+                                                Get.defaultDialog(
+                                                    title: "Edit",
+                                                    content: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 10,
+                                                              right: 10,
+                                                              bottom: 10),
+                                                      child: Column(
+                                                        children: [
+                                                          TextFormField(
+                                                            controller:
                                                                 edititemnamectrl,
+                                                            decoration:
+                                                                InputDecoration(
+                                                                    label: Text(
+                                                                        "Item Name"),
+                                                                    focusedBorder:
+                                                                        OutlineInputBorder(
+                                                                            borderSide:
+                                                                                BorderSide(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          29,
+                                                                          134,
+                                                                          182),
+                                                                    )),
+                                                                    enabledBorder:
+                                                                        OutlineInputBorder(
+                                                                            borderSide:
+                                                                                BorderSide(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          216,
+                                                                          216,
+                                                                          216),
+                                                                    ))),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                          TextFormField(
+                                                            controller:
                                                                 edititemdescriptionctrl,
+                                                            decoration:
+                                                                InputDecoration(
+                                                                    label: Text(
+                                                                        "Description"),
+                                                                    focusedBorder:
+                                                                        OutlineInputBorder(
+                                                                            borderSide:
+                                                                                BorderSide(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          29,
+                                                                          134,
+                                                                          182),
+                                                                    )),
+                                                                    enabledBorder:
+                                                                        OutlineInputBorder(
+                                                                            borderSide:
+                                                                                BorderSide(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          216,
+                                                                          216,
+                                                                          216),
+                                                                    ))),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                          TextFormField(
+                                                            controller:
                                                                 editunitctrl,
-                                                                itemlistresponse![
-                                                                        index]
-                                                                    ['itemId']);
-                                                          },
-                                                          color: Color.fromARGB(
-                                                              255, 91, 171, 94),
-                                                          child: Row(
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        8.0),
-                                                                child: Text(
-                                                                  "Save",
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        MaterialButton(
-                                                          onPressed: () {
-                                                            edititemnamectrl
-                                                                .clear();
-                                                            edititemdescriptionctrl
-                                                                .clear();
-                                                            editunitctrl
-                                                                .clear();
-                                                            Get.back();
-                                                          },
-                                                          color: Color.fromARGB(
-                                                              255, 91, 171, 94),
-                                                          child: Row(
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .all(
-                                                                            8.0),
-                                                                child: Text(
-                                                                  "Discard",
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
+                                                            decoration:
+                                                                InputDecoration(
+                                                                    label: Text(
+                                                                        "Unit"),
+                                                                    focusedBorder:
+                                                                        OutlineInputBorder(
+                                                                            borderSide:
+                                                                                BorderSide(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          29,
+                                                                          134,
+                                                                          182),
+                                                                    )),
+                                                                    enabledBorder:
+                                                                        OutlineInputBorder(
+                                                                            borderSide:
+                                                                                BorderSide(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          216,
+                                                                          216,
+                                                                          216),
+                                                                    ))),
+                                                          )
+                                                        ],
+                                                      ),
                                                     ),
-                                                  )
-                                                ]);
-                                          },
-                                          icon: Icon(
-                                            Icons.edit_outlined,
-                                          )),
-                                      IconButton(
-                                          onPressed: () async {
-                                            setState(() {
-                                              itemlist = null;
-                                            });
-                                            Get.defaultDialog(
-                                                title: "",
-                                                content: Text(
-                                                    "Are you sure you want to delete"),
-                                                actions: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10,
-                                                            right: 10,
-                                                            bottom: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        MaterialButton(
-                                                          onPressed: () async {
-                                                            deleteitemapi(
-                                                                itemlistresponse![
-                                                                        index]
-                                                                    ['itemId']);
-                                                            this.setState(
-                                                                () {});
-                                                          },
-                                                          color: Color.fromARGB(
-                                                              255, 91, 171, 94),
-                                                          child: Row(
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        8.0),
-                                                                child: Text(
-                                                                  "Yes",
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        MaterialButton(
-                                                          onPressed: () {
-                                                            Get.back();
-                                                          },
-                                                          color: Color.fromARGB(
-                                                              255, 91, 171, 94),
-                                                          child: Row(
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    EdgeInsets
-                                                                        .all(
+                                                    actions: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 10,
+                                                                right: 10,
+                                                                bottom: 10),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            MaterialButton(
+                                                              onPressed: () {
+                                                                updateitemapi(
+                                                                    edititemnamectrl,
+                                                                    edititemdescriptionctrl,
+                                                                    editunitctrl,
+                                                                    itemlistresponse![
+                                                                            index]
+                                                                        [
+                                                                        'itemId']);
+                                                              },
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      91,
+                                                                      171,
+                                                                      94),
+                                                              child: Row(
+                                                                children: [
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets.all(
                                                                             8.0),
-                                                                child: Text(
-                                                                  "No",
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white),
-                                                                ),
+                                                                    child: Text(
+                                                                      "Save",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.white),
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                            ],
-                                                          ),
+                                                            ),
+                                                            MaterialButton(
+                                                              onPressed: () {
+                                                                edititemnamectrl
+                                                                    .clear();
+                                                                edititemdescriptionctrl
+                                                                    .clear();
+                                                                editunitctrl
+                                                                    .clear();
+                                                                Get.back();
+                                                              },
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      91,
+                                                                      171,
+                                                                      94),
+                                                              child: Row(
+                                                                children: [
+                                                                  Padding(
+                                                                    padding:
+                                                                        EdgeInsets.all(
+                                                                            8.0),
+                                                                    child: Text(
+                                                                      "Discard",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.white),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                      ],
-                                                    ),
-                                                  )
-                                                ]);
-                                            setState(() {});
-                                          },
-                                          icon: Icon(
-                                            Icons.delete,
-                                            color: Colors.red,
-                                          )),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            )),
-                          ),
-                        );
-                }),
+                                                      )
+                                                    ]);
+                                              },
+                                              icon: Icon(
+                                                Icons.edit_outlined,
+                                              )),
+                                          IconButton(
+                                              onPressed: () async {
+                                                setState(() {
+                                                  itemlist = null;
+                                                });
+                                                Get.defaultDialog(
+                                                    title: "",
+                                                    content: Text(
+                                                        "Are you sure you want to delete"),
+                                                    actions: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 10,
+                                                                right: 10,
+                                                                bottom: 10),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            MaterialButton(
+                                                              onPressed:
+                                                                  () async {
+                                                                deleteitemapi(
+                                                                    itemlistresponse![
+                                                                            index]
+                                                                        [
+                                                                        'itemId']);
+                                                                this.setState(
+                                                                    () {});
+                                                              },
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      91,
+                                                                      171,
+                                                                      94),
+                                                              child: Row(
+                                                                children: [
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets.all(
+                                                                            8.0),
+                                                                    child: Text(
+                                                                      "Yes",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.white),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            MaterialButton(
+                                                              onPressed: () {
+                                                                Get.back();
+                                                              },
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      91,
+                                                                      171,
+                                                                      94),
+                                                              child: Row(
+                                                                children: [
+                                                                  Padding(
+                                                                    padding:
+                                                                        EdgeInsets.all(
+                                                                            8.0),
+                                                                    child: Text(
+                                                                      "No",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.white),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      )
+                                                    ]);
+                                                setState(() {});
+                                              },
+                                              icon: Icon(
+                                                Icons.delete,
+                                                color: Colors.red,
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                              ),
+                            );
+                    }),
+              ),
+            ],
           ),
         ),
         floatingActionButton: FloatingActionButton.extended(
