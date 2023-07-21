@@ -1,9 +1,10 @@
-// ignore_for_file: camel_case_types, prefer_const_constructors, file_names, unused_import, prefer_const_literals_to_create_immutables, duplicate_ignore, non_constant_identifier_names, non_constant_identifier_names
+// ignore_for_file: camel_case_types, prefer_const_constructors, file_names, unused_import, prefer_const_literals_to_create_immutables, duplicate_ignore, non_constant_identifier_names, non_constant_identifier_names, unnecessary_null_comparison, unused_local_variable
 
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:invoiced/databasehelper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -83,8 +84,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       instrumentdatectrl.text = "${date.day}-${date.month}-${date.year}";
       goods_servicesctrl.text =
           listresponse![0]["goodsServiceDescription"].toString();
-      instrument_valuectrl.text =
-          listresponse![0]["instrumentValue"].toString();
+
       quantity_ctrl.text = listresponse![0]["quantity"].toString();
       instrumentunitctrl.text = listresponse![0]["unit"].toString();
       instrumenttotalvaluectrl.text =
@@ -351,11 +351,8 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
                                   width: screensize.width * 0.9,
                                   child: Center(
                                     child: NonGSTimage == null
-                                        ? Text(
-                                            "Upload Image",
-                                            style:
-                                                TextStyle(color: Colors.grey),
-                                          )
+                                        ? Image.network(
+                                            "${listresponse![0]["billImagePath"] == "" ? "https://static.thenounproject.com/png/187803-200.png" : listresponse![0]["billImagePath"]}")
                                         : Image.file(NonGSTimage!),
                                   ),
                                 ),
@@ -535,8 +532,6 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
                                         instrument_referance_numberctrl
                                             .text.isEmpty ||
                                         instrumentdatectrl.text.isEmpty ||
-                                        instrument_valuectrl.text.isEmpty ||
-                                        goods_servicesctrl.text.isEmpty ||
                                         quantity_ctrl.text.isEmpty ||
                                         instrumentunitctrl.text.isEmpty ||
                                         instrumenttotalvaluectrl.text.isEmpty ||
@@ -692,8 +687,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
               NonGSTdate = selectdate;
             });
           }
-          instrumentdatectrl.text =
-              "${NonGSTdate.day}-${NonGSTdate.month}-${NonGSTdate.year}";
+          instrumentdatectrl.text = "${DateFormat('yMMMd').format(NonGSTdate)}";
         },
         controller: controller,
         decoration: InputDecoration(
@@ -734,16 +728,16 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
     var request = new http.MultipartRequest(
         "POST", Uri.parse("http://192.168.0.101:8082/addBillImage"));
 
-    Map<String, String> headers = {
-      "Accept": "*/*",
-      "Content-Type": "application/json",
-      "Authorization": "Bearer ${token[0]["appToken"]}"
-    };
+    // Map<String, String> headers = {
+    //   "Accept": "*/*",
+    //   "Content-Type": "application/json",
+    //   "Authorization": "Bearer ${token[0]["appToken"]}"
+    // };
     String filename = NonGSTimage!.path.split("/").last;
     var multiport = new http.MultipartFile("billImagePath", stream, length,
         filename: filename);
     request.files.add(multiport);
-
+    request.headers["Authorization"] = "Bearer ${token[0]["appToken"]}";
     // request.headers[headers];
     // request.headers['accept'] = '*/*';
     // request.headers['Content-Type'] = "application/json";
@@ -753,6 +747,7 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       var res = await http.Response.fromStream(response);
       var val = json.decode(res.body);
       var modeofpayments = await DatabaseHelper.instance.getGSTmodeofpayments();
+      print(val);
 
       editNonGSTbillapi(
           editNonGSTvendorid.value,
@@ -761,7 +756,6 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
           editNon_GSTitemctrl.text,
           instrument_referance_numberctrl.text,
           "${NonGSTdate.year}-${NonGSTdate.month}-${NonGSTdate.day}",
-          int.parse(instrument_valuectrl.text),
           goods_servicesctrl.text,
           0,
           int.parse(quantity_ctrl.text),
@@ -791,7 +785,6 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       String itemName,
       String invoiceNumber,
       String dateOfInvoice,
-      int instrumentValue,
       String goodsServiceDescription,
       int taxableValue,
       int quantity,
@@ -846,8 +839,20 @@ class _editNonGSTInvoiceScreenState extends State<editNonGSTInvoiceScreen> {
       height: 50,
       child: TextFormField(
         enabled: enable,
-        inputFormatters:
-            text == true ? [] : [FilteringTextInputFormatter.digitsOnly],
+        inputFormatters: text == true
+            ? []
+            : [
+                // FilteringTextInputFormatter.digitsOnly,
+                FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  try {
+                    final text = newValue.text;
+                    if (text.isNotEmpty) double.parse(text);
+                    return newValue;
+                  } catch (e) {}
+                  return oldValue;
+                }),
+              ],
         controller: controller,
         decoration: InputDecoration(
             disabledBorder: OutlineInputBorder(

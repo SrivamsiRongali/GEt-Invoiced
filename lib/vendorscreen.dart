@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last, unused_import, unused_local_variable
 
 import 'dart:convert';
 
@@ -77,376 +77,371 @@ class _vendorsScreenState extends State<vendorsScreen> {
           centerTitle: true,
           backgroundColor: Color.fromARGB(255, 29, 134, 182),
         ),
-        body: FutureBuilder(
-          future: vendor,
-          builder: (context, snapshot) => Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  controller: vendorctrl,
-                  onChanged: (Value) {
-                    setState(() {
-                      vendor = _vendorapi();
-                    });
-                  },
-                  decoration: InputDecoration(
-                      hintText: "Search",
-                      prefixIcon: Icon(Icons.search_outlined),
-                      disabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                        width: 2,
-                        color: Color.fromARGB(255, 216, 216, 216),
-                      )),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                        width: 2,
-                        color: Color.fromARGB(255, 216, 216, 216),
-                      )),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                        width: 2,
-                        color: Color.fromARGB(255, 29, 134, 182),
-                      ))),
+        body: SingleChildScrollView(
+          child: FutureBuilder(
+            future: vendor,
+            builder: (context, snapshot) => Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    controller: vendorctrl,
+                    onChanged: (Value) {
+                      setState(() {
+                        vendor = _vendorapi();
+                      });
+                    },
+                    decoration: InputDecoration(
+                        hintText: "Search",
+                        prefixIcon: Icon(Icons.search_outlined),
+                        disabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                          width: 2,
+                          color: Color.fromARGB(255, 216, 216, 216),
+                        )),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                          width: 2,
+                          color: Color.fromARGB(255, 216, 216, 216),
+                        )),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                          width: 2,
+                          color: Color.fromARGB(255, 29, 134, 182),
+                        ))),
+                  ),
                 ),
-              ),
-              SizedBox(height: 20),
-              Container(
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: vendorslistresponse == null
-                          ? 1
-                          : vendorslistresponse!.length,
-                      itemBuilder: (context, index) {
-                        return vendorslistresponse == null
-                            ? Container(
-                                child:
-                                    Center(child: CircularProgressIndicator()),
-                                height: 300,
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
+                SizedBox(height: 20),
+                Container(
+                    child: ListView.builder(
+                        physics: BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: vendorslistresponse == null
+                            ? 1
+                            : vendorslistresponse!.length,
+                        itemBuilder: (context, index) {
+                          return vendorslistresponse == null
+                              ? Container(
                                   child: Center(
-                                      child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      TextButton(
-                                        onPressed: () async {
-                                          if (val != null) {
-                                            val[0] == true
-                                                ? val[1] == true
-                                                    ? addGSTvendorid.value =
-                                                        vendorslistresponse![
-                                                            index]['vendorId']
-                                                    : addNonGSTvendorid.value =
-                                                        vendorslistresponse![
-                                                            index]['vendorId']
-                                                : val[1] == true
-                                                    ? editGSTvendorid.value =
-                                                        vendorslistresponse![
-                                                            index]['vendorId']
-                                                    : editNonGSTvendorid.value =
-                                                        vendorslistresponse![
-                                                            index]['vendorId'];
-                                            val[0] == true
-                                                ? val[1] == true
-                                                    ? addGSTvendor.value =
-                                                        vendorslistresponse![
-                                                            index]['vendorName']
-                                                    : addNon_GSTvendor.value =
-                                                        vendorslistresponse![
-                                                            index]['vendorName']
-                                                : val[1] == true
-                                                    ? editGSTvendor.value =
-                                                        vendorslistresponse![
-                                                            index]['vendorName']
-                                                    : editNon_GSTvendor.value =
-                                                        vendorslistresponse![index]
-                                                                ['vendorName']
-                                                            .toString();
-                                            print(editNon_GSTvendor.value);
-                                            print(
-                                                "${editGSTvendorid.value}${vendorslistresponse![index]['vendorId']}");
-
-                                            Get.back();
-                                          }
-                                        },
-                                        child: Text(vendorslistresponse![index]
-                                            ['vendorName']),
-                                      ),
-                                      Container(
-                                        width: 100,
+                                      child: CircularProgressIndicator()),
+                                  height: 300,
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    child: Center(
                                         child: Row(
-                                          children: [
-                                            IconButton(
-                                                onPressed: () async {
-                                                  editvendornamectrl.text =
-                                                      vendorslistresponse ==
-                                                              null
-                                                          ? ""
-                                                          : vendorslistresponse![
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        TextButton(
+                                          onPressed: () async {
+                                            if (val != null) {
+                                              val[0] == true
+                                                  ? val[1] == true
+                                                      ? addGSTvendorid.value =
+                                                          vendorslistresponse![
+                                                              index]['vendorId']
+                                                      : addNonGSTvendorid.value =
+                                                          vendorslistresponse![
+                                                              index]['vendorId']
+                                                  : val[1] == true
+                                                      ? editGSTvendorid.value =
+                                                          vendorslistresponse![
+                                                              index]['vendorId']
+                                                      : editNonGSTvendorid.value =
+                                                          vendorslistresponse![index]
+                                                              ['vendorId'];
+                                              val[0] == true
+                                                  ? val[1] == true
+                                                      ? addGSTvendor.value =
+                                                          vendorslistresponse![index]
+                                                              ['vendorName']
+                                                      : addNon_GSTvendor.value =
+                                                          vendorslistresponse![index]
+                                                              ['vendorName']
+                                                  : val[1] == true
+                                                      ? editGSTvendor.value =
+                                                          vendorslistresponse![
                                                                   index]
-                                                              ['vendorName'];
-                                                  editvendordescriptionctrl
-                                                      .text = vendorslistresponse ==
-                                                          null
-                                                      ? ""
-                                                      : vendorslistresponse![
-                                                              index]
-                                                          ['vendorDescription'];
-                                                  Get.defaultDialog(
-                                                      title: "Edit",
-                                                      content: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 10,
-                                                                right: 10,
-                                                                bottom: 10),
-                                                        child: Column(
-                                                          children: [
-                                                            TextFormField(
-                                                              controller:
-                                                                  editvendornamectrl,
-                                                              decoration: InputDecoration(
-                                                                  focusedBorder: OutlineInputBorder(
-                                                                      borderSide: BorderSide(
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            29,
-                                                                            134,
-                                                                            182),
-                                                                  )),
-                                                                  enabledBorder: OutlineInputBorder(
-                                                                      borderSide: BorderSide(
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            216,
-                                                                            216,
-                                                                            216),
-                                                                  ))),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 10,
-                                                            ),
-                                                            TextFormField(
-                                                              controller:
-                                                                  editvendordescriptionctrl,
-                                                              decoration: InputDecoration(
-                                                                  focusedBorder: OutlineInputBorder(
-                                                                      borderSide: BorderSide(
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            29,
-                                                                            134,
-                                                                            182),
-                                                                  )),
-                                                                  enabledBorder: OutlineInputBorder(
-                                                                      borderSide: BorderSide(
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            216,
-                                                                            216,
-                                                                            216),
-                                                                  ))),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      actions: [
-                                                        Padding(
+                                                              ['vendorName']
+                                                      : editNon_GSTvendor.value =
+                                                          vendorslistresponse![
+                                                                      index]
+                                                                  ['vendorName']
+                                                              .toString();
+                                              print(editNon_GSTvendor.value);
+                                              print(
+                                                  "${editGSTvendorid.value}${vendorslistresponse![index]['vendorId']}");
+
+                                              Get.back();
+                                            }
+                                          },
+                                          child: Text(
+                                              vendorslistresponse![index]
+                                                  ['vendorName']),
+                                        ),
+                                        Container(
+                                          width: 100,
+                                          child: Row(
+                                            children: [
+                                              IconButton(
+                                                  onPressed: () async {
+                                                    editvendornamectrl.text =
+                                                        vendorslistresponse ==
+                                                                null
+                                                            ? ""
+                                                            : vendorslistresponse![
+                                                                    index]
+                                                                ['vendorName'];
+                                                    editvendordescriptionctrl
+                                                        .text = vendorslistresponse ==
+                                                            null
+                                                        ? ""
+                                                        : vendorslistresponse![
+                                                                index][
+                                                            'vendorDescription'];
+                                                    Get.defaultDialog(
+                                                        title: "Edit",
+                                                        content: Padding(
                                                           padding:
                                                               const EdgeInsets
                                                                       .only(
                                                                   left: 10,
                                                                   right: 10,
                                                                   bottom: 10),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
+                                                          child: Column(
                                                             children: [
-                                                              MaterialButton(
-                                                                onPressed: () {
-                                                                  editvendornamectrl
-                                                                      .clear();
-                                                                  editvendordescriptionctrl
-                                                                      .clear();
-                                                                  Get.back();
-                                                                },
-                                                                color: Color
-                                                                    .fromARGB(
-                                                                        255,
-                                                                        91,
-                                                                        171,
-                                                                        94),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Padding(
-                                                                      padding:
-                                                                          EdgeInsets.all(
-                                                                              8.0),
-                                                                      child:
-                                                                          Text(
-                                                                        "Discard",
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                Colors.white),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
+                                                              TextFormField(
+                                                                controller:
+                                                                    editvendornamectrl,
+                                                                decoration: InputDecoration(
+                                                                    focusedBorder: OutlineInputBorder(
+                                                                        borderSide: BorderSide(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          29,
+                                                                          134,
+                                                                          182),
+                                                                    )),
+                                                                    enabledBorder: OutlineInputBorder(
+                                                                        borderSide: BorderSide(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          216,
+                                                                          216,
+                                                                          216),
+                                                                    ))),
                                                               ),
-                                                              MaterialButton(
-                                                                onPressed: () {
-                                                                  print(
-                                                                      "vendor edites");
-                                                                  updatevendorapi(
-                                                                      editvendornamectrl,
-                                                                      editvendordescriptionctrl,
-                                                                      vendorslistresponse![
-                                                                              index]
-                                                                          [
-                                                                          'vendorId']);
-                                                                },
-                                                                color: Color
-                                                                    .fromARGB(
-                                                                        255,
-                                                                        91,
-                                                                        171,
-                                                                        94),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Padding(
-                                                                      padding:
-                                                                          const EdgeInsets.all(
-                                                                              8.0),
-                                                                      child:
-                                                                          Text(
-                                                                        "Save",
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                Colors.white),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
+                                                              SizedBox(
+                                                                height: 10,
+                                                              ),
+                                                              TextFormField(
+                                                                controller:
+                                                                    editvendordescriptionctrl,
+                                                                decoration: InputDecoration(
+                                                                    focusedBorder: OutlineInputBorder(
+                                                                        borderSide: BorderSide(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          29,
+                                                                          134,
+                                                                          182),
+                                                                    )),
+                                                                    enabledBorder: OutlineInputBorder(
+                                                                        borderSide: BorderSide(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          216,
+                                                                          216,
+                                                                          216),
+                                                                    ))),
                                                               )
                                                             ],
                                                           ),
-                                                        )
-                                                      ]);
-                                                  this.setState(() {});
-                                                },
-                                                icon:
-                                                    Icon(Icons.edit_outlined)),
-                                            IconButton(
-                                                onPressed: () {
-                                                  Get.defaultDialog(
-                                                      title: "",
-                                                      content: Text(
-                                                          "Are you sure you want to delete"),
-                                                      actions: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 10,
-                                                                  right: 10,
-                                                                  bottom: 10),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              MaterialButton(
-                                                                onPressed:
-                                                                    () async {
-                                                                  deletevendorapi(
-                                                                      vendorslistresponse![
-                                                                              index]
-                                                                          [
-                                                                          'itemId']);
-                                                                  this.setState(
-                                                                      () {});
-                                                                },
-                                                                color: Color
-                                                                    .fromARGB(
-                                                                        255,
-                                                                        91,
-                                                                        171,
-                                                                        94),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Padding(
-                                                                      padding:
-                                                                          const EdgeInsets.all(
-                                                                              8.0),
-                                                                      child:
-                                                                          Text(
-                                                                        "Yes",
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                Colors.white),
+                                                        ),
+                                                        actions: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 10,
+                                                                    right: 10,
+                                                                    bottom: 10),
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                MaterialButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    editvendornamectrl
+                                                                        .clear();
+                                                                    editvendordescriptionctrl
+                                                                        .clear();
+                                                                    Get.back();
+                                                                  },
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          91,
+                                                                          171,
+                                                                          94),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            EdgeInsets.all(8.0),
+                                                                        child:
+                                                                            Text(
+                                                                          "Discard",
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        ),
                                                                       ),
-                                                                    ),
-                                                                  ],
+                                                                    ],
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                              MaterialButton(
-                                                                onPressed: () {
-                                                                  Get.back();
-                                                                },
-                                                                color: Color
-                                                                    .fromARGB(
-                                                                        255,
-                                                                        91,
-                                                                        171,
-                                                                        94),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Padding(
-                                                                      padding:
-                                                                          EdgeInsets.all(
-                                                                              8.0),
-                                                                      child:
-                                                                          Text(
-                                                                        "No",
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                Colors.white),
+                                                                MaterialButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    print(
+                                                                        "vendor edites");
+                                                                    updatevendorapi(
+                                                                        editvendornamectrl,
+                                                                        editvendordescriptionctrl,
+                                                                        vendorslistresponse![index]
+                                                                            [
+                                                                            'vendorId']);
+                                                                  },
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          91,
+                                                                          171,
+                                                                          94),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.all(8.0),
+                                                                        child:
+                                                                            Text(
+                                                                          "Save",
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        ),
                                                                       ),
-                                                                    ),
-                                                                  ],
+                                                                    ],
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            ),
+                                                          )
+                                                        ]);
+                                                    this.setState(() {});
+                                                  },
+                                                  icon: Icon(
+                                                      Icons.edit_outlined)),
+                                              IconButton(
+                                                  onPressed: () {
+                                                    Get.defaultDialog(
+                                                        title: "",
+                                                        content: Text(
+                                                            "Are you sure you want to delete"),
+                                                        actions: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 10,
+                                                                    right: 10,
+                                                                    bottom: 10),
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                MaterialButton(
+                                                                  onPressed:
+                                                                      () async {
+                                                                    deletevendorapi(
+                                                                        vendorslistresponse![index]
+                                                                            [
+                                                                            'itemId']);
+                                                                    this.setState(
+                                                                        () {});
+                                                                  },
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          91,
+                                                                          171,
+                                                                          94),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.all(8.0),
+                                                                        child:
+                                                                            Text(
+                                                                          "Yes",
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        )
-                                                      ]);
-                                                  this.setState(() {});
-                                                },
-                                                icon: Icon(
-                                                  Icons.delete,
-                                                  color: Colors.red,
-                                                )),
-                                          ],
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                        ),
-                                      )
-                                    ],
-                                  )),
-                                ),
-                              );
-                      })),
-            ],
+                                                                MaterialButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    Get.back();
+                                                                  },
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          91,
+                                                                          171,
+                                                                          94),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Padding(
+                                                                        padding:
+                                                                            EdgeInsets.all(8.0),
+                                                                        child:
+                                                                            Text(
+                                                                          "No",
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          )
+                                                        ]);
+                                                    this.setState(() {});
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.delete,
+                                                    color: Colors.red,
+                                                  )),
+                                            ],
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                          ),
+                                        )
+                                      ],
+                                    )),
+                                  ),
+                                );
+                        })),
+              ],
+            ),
           ),
         ),
         floatingActionButton: FloatingActionButton.extended(

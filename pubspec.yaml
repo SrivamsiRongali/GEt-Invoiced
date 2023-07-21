@@ -46,6 +46,7 @@ dependencies:
   cloud_firestore: ^4.7.1
   url_launcher: ^6.1.11
   flutter_typeahead: ^4.4.0
+  intl: ^0.18.1
 
 
   

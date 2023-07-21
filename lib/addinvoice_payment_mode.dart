@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_null_comparison, prefer_is_empty
+// ignore_for_file: prefer_const_constructors, unnecessary_null_comparison, prefer_is_empty, unused_import
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -59,7 +59,7 @@ class _addinvoicepaymentModeScreenState
       Uri.parse("http://192.168.0.101:8082/paymentMethods"),
       headers: {
         "accept": "*/*",
-        "Content-Type": "application/json",
+        "Content-Type": "application/json", 
         "Authorization": "Bearer ${token[0]["appToken"]}"
       },
     );
@@ -230,10 +230,18 @@ class _addinvoicepaymentModeScreenState
                                                       color: Color.fromARGB(
                                                           255, 29, 134, 182),
                                                       width: 2))),
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter
-                                                .digitsOnly
-                                          ],
+                                           inputFormatters: [
+          // FilteringTextInputFormatter.digitsOnly,
+          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+          TextInputFormatter.withFunction((oldValue, newValue) {
+            try {
+              final text = newValue.text;
+              if (text.isNotEmpty) double.parse(text);
+              return newValue;
+            } catch (e) {}
+            return oldValue;
+          }),
+        ],
                                           onChanged: (value) {
                                             int remaining = 0;
                                             for (int n = 0;

@@ -1,9 +1,9 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, sized_box_for_whitespace, prefer_const_constructors, non_constant_identifier_names, camel_case_types
+// ignore_for_file: prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, sized_box_for_whitespace, prefer_const_constructors, non_constant_identifier_names, camel_case_types, unused_import
 
 import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
+
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
@@ -12,8 +12,6 @@ import 'package:invoiced/databasehelper.dart';
 import 'package:invoiced/home.dart';
 import 'package:invoiced/pojoclass.dart';
 import 'package:invoiced/registeration.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class loginScreen extends StatefulWidget {
   const loginScreen({super.key});
@@ -37,7 +35,7 @@ class _loginScreenState extends State<loginScreen> {
   }
 
   loginapi(
-    String email,
+    String email, 
     String password,
   ) async {
     var data = json.encode({"email": email, "password": password});
@@ -83,7 +81,7 @@ class _loginScreenState extends State<loginScreen> {
         print("result=$result");
         print("mapresponse=${mapresponse['userId']}");
         print("login successful");
-        Get.to(homeScreen());
+        Get.offAll(homeScreen());
       }
     } else {
       print("login failed");
@@ -116,18 +114,31 @@ class _loginScreenState extends State<loginScreen> {
   TextEditingController emailctrl = TextEditingController();
   TextEditingController passwordctrl = TextEditingController();
 
-  // FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
-
+  FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+  // void initDynamicLinks() async {
+  //   FirebaseDynamicLinks.instance.onLink(
+  //     onSuccess: (PendingDynamicLinkData? dynamicLink) async {
+  //       final Uri deepLink = dynamicLink?.link;
+  //       if (deepLink != null) {
+  //         // Handle the dynamic link here
+  //         // You can extract and use the necessary information from the deepLink
+  //         print('Dynamic link received: $deepLink');
+  //       }
+  //     },
+  //     onError: (OnLinkErrorException e) async {
+  //       // Handle any errors that occur while retrieving the dynamic link
+  //       print('Dynamic link error: ${e.message}');
+  //     },
+  //   );
+  // }
   void initDynamicLinks() async {
-    final PendingDynamicLinkData? initallink =
+    final PendingDynamicLinkData? initiallink =
         await FirebaseDynamicLinks.instance.getInitialLink();
-    // dynamicLinks.onLink.listen((dynamicLinkdata) {});
 
-    if (initallink != null) {
-      final Uri dynamiclink = initallink.link;
+    if (initiallink != null) {
+      final Uri dynamiclink = initiallink.link;
       List<String> sepreatedLink = [];
 
-      /// osama.link.page/Hellow --> osama.link.page and Hellow
       sepreatedLink.addAll(dynamiclink.path.split('/'));
       print("The Token that i'm interesed in is ${sepreatedLink[1]}");
 
@@ -135,6 +146,8 @@ class _loginScreenState extends State<loginScreen> {
     } else {
       flow();
     }
+
+    ;
   }
 
   @override

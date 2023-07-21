@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types, prefer_const_constructors, file_names, unused_import, prefer_const_literals_to_create_immutables, duplicate_ignore, non_constant_identifier_names, non_constant_identifier_names, unnecessary_new, unnecessary_null_comparison
+// ignore_for_file: camel_case_types, prefer_const_constructors, file_names, unused_import, prefer_const_literals_to_create_immutables, duplicate_ignore, non_constant_identifier_names, non_constant_identifier_names, unnecessary_new, unnecessary_null_comparison, unused_local_variable
 
 import 'dart:io';
 import 'dart:convert';
@@ -16,6 +16,7 @@ import 'package:path/path.dart';
 import 'home.dart';
 import 'itemscreen.dart';
 import 'vendorscreen.dart';
+import 'package:intl/intl.dart';
 
 class addInvoiceScreen extends StatefulWidget {
   const addInvoiceScreen({super.key});
@@ -303,18 +304,18 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
           stateid,
           invoicenumberctrl.text,
           "${GSTdate.year}-${GSTdate.month}-${GSTdate.day}",
-          int.parse(invoicevaluectrl.text),
+          double.parse(invoicevaluectrl.text),
           HSN_SACctrl.text,
           GSTgoodsandservicesctrl.text,
-          int.parse(taxablevaluectrl.text),
-          int.parse(GSTquantityctrl.text),
+          double.parse(taxablevaluectrl.text),
+          double.parse(GSTquantityctrl.text),
           GSTunitctrl.text,
-          int.parse(IGSTRatectrl.text == "" ? "1" : IGSTRatectrl.text),
-          int.parse(IGSTamountctrl.text == "" ? "1" : IGSTamountctrl.text),
-          int.parse(SGSTratectrl.text == "" ? "1" : SGSTratectrl.text),
-          int.parse(SGSTamountctrl.text == "" ? "1" : SGSTamountctrl.text),
-          int.parse(CGSTratectrl.text),
-          int.parse(CGSTamountctrl.text),
+          double.parse(IGSTRatectrl.text == "" ? "0" : IGSTRatectrl.text),
+          double.parse(IGSTamountctrl.text == "" ? "0" : IGSTamountctrl.text),
+          double.parse(SGSTratectrl.text == "" ? "0" : SGSTratectrl.text),
+          double.parse(SGSTamountctrl.text == "" ? "0" : SGSTamountctrl.text),
+          double.parse(CGSTratectrl.text),
+          double.parse(CGSTamountctrl.text),
           val['billImagePath'],
           modeofpayments);
     } else {
@@ -342,18 +343,18 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
       int stateid,
       String invoicenum,
       String dateofinvoice,
-      int invoiceval,
+      double invoiceval,
       String HSN_SACcode,
       String good_service_description,
-      int taxableval,
-      int quantity,
+      double taxableval,
+      double quantity,
       String unit,
-      int igstrate,
-      int igstamount,
-      int sgstrate,
-      int sgstamopuint,
-      int cgstrate,
-      int cgstamount,
+      double igstrate,
+      double igstamount,
+      double sgstrate,
+      double sgstamopuint,
+      double cgstrate,
+      double cgstamount,
       String billImgaePath,
       var modeofPayments) async {
     var token = await DatabaseHelper.instance.getbookkeepermodel();
@@ -1280,15 +1281,15 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
     return Container(
       height: 50,
       child: TextFormField(
-        keyboardType: TextInputType.number,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
         enabled: !state,
         onChanged: (value) async {
           print("value add=${value.toUpperCase()}");
           if (selectGst == true) {
             if (value.isNotEmpty) {
               var SGSTamount;
-              SGSTamount = (int.parse(taxablevaluectrl.text) / 100) *
-                  int.parse(SGSTratectrl.text);
+              SGSTamount = (double.parse(taxablevaluectrl.text) / 100) *
+                  double.parse(SGSTratectrl.text);
               SGSTamountctrl.text = SGSTamount.toString();
             } else {
               SGSTamountctrl.clear();
@@ -1296,8 +1297,8 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
           } else {
             if (value.isNotEmpty) {
               var IGSTamount;
-              IGSTamount = (int.parse(taxablevaluectrl.text) / 100) *
-                  int.parse(IGSTRatectrl.text);
+              IGSTamount = (double.parse(taxablevaluectrl.text) / 100) *
+                  double.parse(IGSTRatectrl.text);
               IGSTamountctrl.text = IGSTamount.toString();
             } else {
               IGSTamountctrl.clear();
@@ -1306,15 +1307,26 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
           if (cgst == true) {
             if (value.isNotEmpty) {
               var CGSTamount;
-              CGSTamount = (int.parse(taxablevaluectrl.text) / 100) *
-                  int.parse(CGSTratectrl.text);
+              CGSTamount = (double.parse(taxablevaluectrl.text) / 100) *
+                  double.parse(CGSTratectrl.text);
               CGSTamountctrl.text = CGSTamount.toString();
             } else {
               CGSTamountctrl.clear();
             }
           }
         },
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        inputFormatters: [
+          // FilteringTextInputFormatter.digitsOnly,
+          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+          TextInputFormatter.withFunction((oldValue, newValue) {
+            try {
+              final text = newValue.text;
+              if (text.isNotEmpty) double.parse(text);
+              return newValue;
+            } catch (e) {}
+            return oldValue;
+          }),
+        ],
         controller: controller,
         decoration: InputDecoration(
             disabledBorder: OutlineInputBorder(
@@ -1371,8 +1383,20 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
             statectrl.clear();
           }
         },
-        inputFormatters:
-            text == true ? [] : [FilteringTextInputFormatter.digitsOnly],
+        inputFormatters: text == true
+            ? []
+            : [
+                // FilteringTextInputFormatter.digitsOnly,
+                FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  try {
+                    final text = newValue.text;
+                    if (text.isNotEmpty) double.parse(text);
+                    return newValue;
+                  } catch (e) {}
+                  return oldValue;
+                }),
+              ],
         controller: controller,
         decoration: InputDecoration(
             disabledBorder: OutlineInputBorder(
@@ -1413,10 +1437,9 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
             });
           }
           type == true
-              ? invoicedatectrl.text =
-                  "${GSTdate.day}-${GSTdate.month}-${GSTdate.year}"
+              ? invoicedatectrl.text = "${DateFormat('yMMMd').format(GSTdate)}"
               : instrumentdatectrl.text =
-                  "${NonGSTdate.day}-${NonGSTdate.month}-${NonGSTdate.year}";
+                  "${DateFormat('yMMMd').format(NonGSTdate)}";
         },
         controller: controller,
         decoration: InputDecoration(
@@ -1470,8 +1493,6 @@ class _addInvoiceScreenState extends State<addInvoiceScreen> {
   TextEditingController addGSTvendorctrl = TextEditingController();
 
   forexample(TextEditingController controller, bool type, bool names) {
-    String novendormessage = "No Vendor found";
-    String noitemmessage = "No Item found";
     return Container(
         height: 50,
         child: TextFormField(

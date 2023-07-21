@@ -1,8 +1,9 @@
-// ignore_for_file: camel_case_types, prefer_const_constructors, file_names, unused_import, prefer_const_literals_to_create_immutables, duplicate_ignore, non_constant_identifier_names, non_constant_identifier_names, unnecessary_new
+// ignore_for_file: camel_case_types, prefer_const_constructors, file_names, unused_import, prefer_const_literals_to_create_immutables, duplicate_ignore, non_constant_identifier_names, non_constant_identifier_names, unnecessary_new, unused_local_variable, unnecessary_null_comparison, unused_field
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:invoiced/databasehelper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -277,18 +278,18 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
           stateid,
           invoicenumberctrl.text,
           "${GSTdate.year}-${GSTdate.month}-${GSTdate.day}",
-          int.parse(invoicevaluectrl.text),
+          double.parse(invoicevaluectrl.text),
           HSN_SACctrl.text,
           goodsandservicesctrl.text,
-          int.parse(taxablevaluectrl.text),
-          int.parse(quantityctrl.text),
+          double.parse(taxablevaluectrl.text),
+          double.parse(quantityctrl.text),
           unitctrl.text,
-          int.parse(IGSTRatectrl.text == "" ? "0" : IGSTRatectrl.text),
-          int.parse(IGSTamountctrl.text == "" ? "0" : IGSTamountctrl.text),
-          int.parse(SGSTratectrl.text == "" ? "0" : SGSTratectrl.text),
-          int.parse(SGSTamountctrl.text == "" ? "0" : SGSTamountctrl.text),
-          int.parse(CGSTratectrl.text),
-          int.parse(CGSTamountctrl.text),
+          double.parse(IGSTRatectrl.text == "" ? "0" : IGSTRatectrl.text),
+          double.parse(IGSTamountctrl.text == "" ? "0" : IGSTamountctrl.text),
+          double.parse(SGSTratectrl.text == "" ? "0" : SGSTratectrl.text),
+          double.parse(SGSTamountctrl.text == "" ? "0" : SGSTamountctrl.text),
+          double.parse(CGSTratectrl.text),
+          double.parse(CGSTamountctrl.text),
           val['billImagePath'],
           modeofpayments);
     } else {
@@ -325,8 +326,7 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
               GSTdate = selectdate;
             });
           }
-          invoicedatectrl.text =
-              "${GSTdate.day}-${GSTdate.month}-${GSTdate.year}";
+          invoicedatectrl.text = "${DateFormat('yMMMd').format(GSTdate)}";
         },
         controller: controller,
         decoration: InputDecoration(
@@ -359,18 +359,18 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
       int stateid,
       String invoicenum,
       String dateofinvoice,
-      int invoiceval,
+      double invoiceval,
       String HSN_SACcode,
       String good_service_description,
-      int taxableval,
-      int quantity,
+      double taxableval,
+      double quantity,
       String unit,
-      int igstrate,
-      int igstamount,
-      int sgstrate,
-      int sgstamopuint,
-      int cgstrate,
-      int cgstamount,
+      double igstrate,
+      double igstamount,
+      double sgstrate,
+      double sgstamopuint,
+      double cgstrate,
+      double cgstamount,
       String billImgaePath,
       var modeofPayments) async {
     print(dateofinvoice);
@@ -512,10 +512,8 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
                                 width: screensize.width * 0.9,
                                 child: Center(
                                   child: GSTimage == null
-                                      ? Text(
-                                          "Upload Image",
-                                          style: TextStyle(color: Colors.grey),
-                                        )
+                                      ? Image.network(
+                                          "${listresponse![0]["billImagePath"] == "" ? "https://static.thenounproject.com/png/187803-200.png" : listresponse![0]["billImagePath"]}")
                                       : Image.file(GSTimage!),
                                 ),
                               ),
@@ -1025,7 +1023,18 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
             }
           }
         },
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        inputFormatters: [
+          // FilteringTextInputFormatter.digitsOnly,
+          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+          TextInputFormatter.withFunction((oldValue, newValue) {
+            try {
+              final text = newValue.text;
+              if (text.isNotEmpty) double.parse(text);
+              return newValue;
+            } catch (e) {}
+            return oldValue;
+          }),
+        ],
         controller: controller,
         decoration: InputDecoration(
             disabledBorder: OutlineInputBorder(
@@ -1110,6 +1119,7 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
 
               if (val == _statelistresponse![n]['stateCode'].toString()) {
                 statectrl.text = _statelistresponse![n]['StateName'].toString();
+                val == "TS" ? selectGst = true : selectGst = false;
                 setState(() {
                   stateid = _statelistresponse![n]["stateId"];
                 });
@@ -1124,8 +1134,20 @@ class _editGSTInvoiceScreenState extends State<editGSTInvoiceScreen> {
             statectrl.clear();
           }
         },
-        inputFormatters:
-            text == true ? [] : [FilteringTextInputFormatter.digitsOnly],
+        inputFormatters: text == true
+            ? []
+            : [
+                // FilteringTextInputFormatter.digitsOnly,
+                FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  try {
+                    final text = newValue.text;
+                    if (text.isNotEmpty) double.parse(text);
+                    return newValue;
+                  } catch (e) {}
+                  return oldValue;
+                }),
+              ],
         controller: controller,
         decoration: InputDecoration(
             disabledBorder: OutlineInputBorder(

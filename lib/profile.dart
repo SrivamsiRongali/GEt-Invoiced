@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, unused_local_variable, override_on_non_overriding_member, implementation_imports, unused_import
 
 import 'dart:convert';
 
